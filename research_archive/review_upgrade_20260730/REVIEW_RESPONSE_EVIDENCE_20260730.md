@@ -35,6 +35,13 @@ the frame-level frozen protocol.
 Artifact: `frozen_split_audit_20260730.md` and
 `scripts/audit_frozen_split_overlap.py`.
 
+The manuscript now treats the study as a frame-level frozen-conversion
+post-processing study. The contribution wording is narrowed to
+expert-consistency score reweighting with conditional geometry refinement; M2
+is a conservative interface and voting is not claimed to be uniformly
+beneficial. The aggregate archive does not contain per-frame TP/FP/FN traces,
+so no frame-level attribution of the 0.1718 AP minimum gain is reported.
+
 ## Recommended response posture
 
 Keep the formal statement that the strict route improves all 12 matched cells

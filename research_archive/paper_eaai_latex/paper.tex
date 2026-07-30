@@ -198,8 +198,8 @@ relaxed anchor configuration to maximize macro AP, but it is not assigned a
 no-regression claim when any paired result is negative. The strict threshold
 was selected within the same four-dataset protocol used for the main strict
 comparison; therefore, the resulting evidence supports a bounded
-cross-dataset, cross-seed consistency claim rather than an independent
-held-out guarantee.
+cross-conversion, cross-seed consistency claim within the frozen frame-level
+protocol rather than an independent or scene-disjoint held-out guarantee.
 
 The study combines a formal four-dataset, three-seed comparison with a
 seed-2028 progressive analysis of the refinement path. Calibration error,
@@ -207,11 +207,12 @@ range and sparsity diagnostics, deterministic point-dropout tests, voting
 threshold sensitivity, runtime profiling, and qualitative BEV cases examine
 the mechanisms and failure boundaries. The contributions are as follows:
 \begin{enumerate}[leftmargin=*]
-\item \textbf{Reliability formulation.} We decompose sparse-radar proposal
-reliability into availability, quality, and consistency. This formulation
-connects candidate preservation, residual recovery, confidence--localization
-alignment, and local geometric consensus without changing the compact
-PointPillars-style backbone.
+\item \textbf{Protocol-bounded expert-consistency formulation.} We use
+availability, quality, and consistency as diagnostic dimensions for a
+frame-level frozen-conversion study. The primary methodological contribution
+is expert-consistency score reweighting; candidate preservation, residual
+recovery, quality alignment, and local geometry are evaluated as supporting or
+conditional mechanisms without changing the compact PointPillars-style backbone.
 \item \textbf{Expert-consistency refinement with conditional geometry.} We develop
 an asymmetric evidence path in which recovered residuals are score capped, the
 strict endpoint reweights primary proposals using an auxiliary expert, and any
@@ -221,7 +222,7 @@ allow weak evidence to assist a detection without letting it dominate ranking
 or expand box geometry.
 \item \textbf{Paired protocol evaluation.} We operationalize the strict
 route's protocol-bounded paired no-regression behavior as positive improvement over RDAR in every matched dataset--seed
-cell and evaluate it across four radar datasets and three seeds. The selected
+cell and evaluate it across four frozen radar conversions and three seeds. The selected
 strict route improves all 12 pairs, with a mean gain of 0.9726 AP and a minimum
 gain of 0.1718 AP. A leave-one-dataset-out threshold-selection audit retains
 positive held-out dataset means on all four datasets and 11/12 positive
@@ -1248,19 +1249,19 @@ the mean of the 12 finite strict-route paired differences.}
 \label{fig:paired-differences}
 \end{figure*}
 
-The comparison illustrates why the two routes are both useful. If a deployment
-can accept dataset-specific validation and prioritizes average AP, the
-high-performance route is preferable. If the experimental objective is to
-avoid a measured regression across all available paired conditions, the strict
-route provides the relevant evidence. A single ranking of methods would erase
-this difference in engineering objective.
+The comparison illustrates why the two routes represent different operating
+objectives. If a user can validate the frozen conversion and prioritizes average
+AP, the high-performance route is preferable. If the study objective is to
+avoid a measured regression across the available frame-level paired conditions,
+the strict route provides the relevant evidence. Neither statement implies
+scene-level or cross-protocol generalization.
 
-\subsection{Dataset-level interpretation}
+\subsection{Frozen-conversion interpretation}
 
 Astyx shows the clearest response to candidate preservation and quality
 alignment: M1 adds 3.8383 AP and M3 adds a further 2.6778 AP in the seed-2028
 construction. TruckScenes is the limiting dataset for the high-performance
-route because its seed-2027 result decreases, whereas strict voting remains
+route because its seed-2027 result decreases, whereas the selected strict route remains
 positive in all three paired comparisons. V2X-Radar-V has the smallest strict
 mean gain, although quality alignment improves its mean by 2.7093 AP. K-Radar
 provides the largest headroom, contributing 7.8045 AP to the high-performance
@@ -1619,7 +1620,7 @@ of 0.0270. Voting shifts geometry and reweights proposal support after the
 confidence has been learned; it was not optimized to preserve probability
 calibration. We therefore make no calibration claim for the strict route.
 
-Range and sparsity results are also mixed. Relative to RDAR, strict voting has
+Range and sparsity results are also mixed. Relative to RDAR, the selected strict route has
 26 wins, 13 ties, and 9 losses across the audited range bins, and 18 wins, 19
 ties, 8 losses, and 3 missing cells across sparsity bins. The high-performance
 route has 17 range-bin wins, 10 ties, and 21 losses, despite its strong AP and
@@ -1816,7 +1817,7 @@ of its frequency.}
 
 The qualitative cases connect the voting operation to visible proposal
 changes. In Astyx frame 000499, the RDAR box has IoU 0.4203 and lies below the
-0.50 matching threshold. Strict voting moves the BEV center toward the local
+0.50 matching threshold. Conditional voting in the strict route moves the BEV center toward the local
 consensus and raises IoU to 0.5235. TruckScenes frame 000267 shows a larger
 change, from 0.4940 to 0.6599. V2X-Radar-V frame 000361 changes from 0.4970 to
 0.5420. In each case a borderline localization becomes a valid match under
@@ -1945,12 +1946,12 @@ point.
 \section{Discussion}
 
 The central result is not that one post-processing setting dominates every
-alternative. It is that proposal handling accounts for a measurable and
-reproducible part of sparse-radar detector behavior, and that different
-proposal objectives lead to different operating points. Strict voting improves
-RDAR in every paired dataset-seed comparison, whereas quality-aligned training
-produces the larger macro gain. The distinction would be invisible if the
-paper reported only the best macro AP.
+alternative. It is that, within the frozen frame-level conversions, proposal
+handling produces different operating points. The selected expert-gated strict
+route improves RDAR in every paired dataset-seed comparison, whereas
+quality-aligned training produces the larger macro gain. The distinction would
+be invisible if the paper reported only the best macro AP, but neither result
+should be read as scene-level detector generalization.
 
 \subsection{How the stages contribute}
 
@@ -1980,7 +1981,7 @@ high-performance route. They do not prove that every individual score becomes
 well calibrated, but they make a purely incidental ranking explanation less
 likely.
 
-Strict voting addresses a different error. Its selected cases show proposals
+Conditional geometry voting addresses a different error. Its selected cases show proposals
 with nearly correct geometry that remain below the evaluation threshold.
 Consensus moves the BEV center and heading while preserving dimensions. This
 limited update can convert a near miss into a true positive without allowing a
@@ -2006,19 +2007,21 @@ operationally by Eq.~\eqref{eq:strict-gate}, not used as a synonym for
 universally safe. This bounded definition makes the claim reproducible and
 falsifiable.
 
-The criterion also has a statistical limitation. The 12 cells combine four
+The criterion also has a statistical and protocol limitation. The 12 cells combine four
 datasets and three seeds, but cells sharing a dataset are not independent in
 the same way as samples from unrelated populations. The sign test and
 bootstrap interval summarize the observed differences; they do not license a
-population-level causal conclusion about every radar sensor. More datasets,
-more seeds, and preregistered operating thresholds would strengthen the
-reliability assessment.
+population-level causal conclusion about every radar sensor. Moreover, the
+frame manifests do not expose scene, sequence, vehicle, or timestamp keys, and
+the numeric adjacency audit cannot establish whether the IDs encode time. More
+independent scene-disjoint conversions, more seeds, and preregistered operating
+thresholds would strengthen the reliability assessment.
 
 \subsection{Calibration and failure boundaries}
 
 AP, ECE, recall, and localization diagnostics answer different questions. The
 high-performance route improves AP and ECE but loses more range-bin comparisons
-than it wins. Strict voting improves paired AP while worsening ECE. Neither
+than it wins. The selected strict route improves paired AP while worsening ECE. Neither
 result is contradictory. AP rewards ordering under a localization threshold;
 ECE measures the magnitude of confidence relative to correctness; binned
 recall measures whether targets are retrieved under a particular partition.
@@ -2028,7 +2031,7 @@ magnitudes in an unfavorable way.
 This distinction changes how the method should be deployed. A downstream
 planner that treats confidence as a calibrated probability may prefer the
 quality-aligned branch or apply a separate calibration procedure. A pipeline
-that needs consistent AP under the tested conditions may prefer strict voting,
+that needs consistent AP under the tested frame-level conditions may prefer the strict route,
 provided its confidence values are not interpreted probabilistically without
 additional validation. The paper therefore avoids merging ``quality
 alignment'', ``calibration'', and protocol-bounded paired no-regression
@@ -2096,9 +2099,12 @@ patterns; the recovery ceiling and voting neighborhood may not transfer
 unchanged. The validation sets contain only 80--100 frames (198--3950 car
 instances), and the smallest strict gain is 0.1718 AP. We treat that margin as
 a descriptive finite-protocol result rather than evidence of a practically
-meaningful effect. The absence of scene/vehicle identifiers also prevents a
-scene-level leakage audit; adjacent frame IDs are present across the frozen
-train/validation boundaries. The study also uses a PointPillars-style anchor detector. Testing
+meaningful effect. The available aggregate archive does not retain the
+per-frame matched TP/FP/FN decomposition needed to attribute each AP change to
+specific frames, so we do not infer such attribution. The absence of
+scene/vehicle identifiers prevents a scene-level leakage audit; the numeric
+adjacency check is only a risk indicator, and adjacent frame IDs are present
+across the frozen train/validation boundaries. The study also uses a PointPillars-style anchor detector. Testing
 center-based and transformer-based radar detectors would determine whether the
 proposal mechanisms are architecture independent.
 
@@ -2139,16 +2145,19 @@ M1 preserves borderline candidates, M2 recovers complementary residual boxes
 while capping their scores, and M3 trains confidence against a target that
 combines objectness with online 3D IoU. The strict endpoint then uses an
 expert-consistency gate and optional local voting that can update only the BEV center
-and heading of supported primary proposals. This asymmetric design is the main
-methodological contribution: auxiliary evidence can recover, reweight, or
-stabilize a detection, but it cannot silently acquire all privileges of the
-primary stream or enlarge the predicted geometry. The complete vote-only audit
-shows that geometric voting alone is not uniformly beneficial, so the evidence
-supports this asymmetric, gate-led interpretation in the four-cell diagnostic,
-rather than a claim for voting as a universally improving operation.
+and heading of supported primary proposals. This asymmetric design, specifically
+expert-consistency score reweighting with conditional geometry refinement, is
+the main methodological contribution: auxiliary evidence can recover, reweight,
+or stabilize a detection, but it cannot silently acquire all privileges of the
+primary stream or enlarge the predicted geometry. M2 is a conservative
+interface rather than a dominant accuracy module, and the complete vote-only
+audit shows that geometric voting alone is not uniformly beneficial. The
+evidence therefore supports a gate-led interpretation in the four-cell
+diagnostic, not a claim for voting as a universally improving operation.
 
-The four-dataset, three-seed evaluation supports two different conclusions.
-Across Astyx, MAN TruckScenes, V2X-Radar-V, and K-Radar, the strict route
+The four-conversion, three-seed evaluation supports two different conclusions.
+Within the Astyx, MAN TruckScenes, V2X-Radar-V, and K-Radar frozen conversions,
+the strict route
 improves RDAR in all 12 paired comparisons. Its mean improvement is 0.9726 AP,
 its minimum improvement is 0.1718 AP, and the four-dataset cluster-resampling
 interval for the dataset-level mean is [0.5464, 1.4834] AP. This is a
@@ -2161,7 +2170,8 @@ no-regression label. The leave-one-dataset-out transfer audit is deliberately
 weaker: it retains positive held-out dataset means but contains one negative
 seed-level cell ($-0.2945$ AP), so it is threshold-transfer sensitivity evidence
 rather than independent confirmation. The strict result should therefore be
-read as selected-protocol evidence, not a universal reliability guarantee.
+read as selected frame-level frozen-protocol evidence, not a
+dataset-generalization result or universal reliability guarantee.
 
 The supporting analyses explain why the endpoints differ. The progressive
 seed-2028 study identifies candidate preservation and quality-aligned scoring
