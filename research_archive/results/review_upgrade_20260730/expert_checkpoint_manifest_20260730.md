@@ -12,7 +12,8 @@ diagnostic results. All checkpoints are epoch 160.
 | V2X-Radar-V | 2027 | `checkpoint_epoch_160.pth` under `pointpillars_bevgate_dapg_msbc_v2xradarv_car/fair_bevgate_dapg_msbc_v2xradarv_seed2027/ckpt/` | `f566573f17d42f5fbb3518725bf23267e8b4d92799bb3b88e20974e29ac1c829` |
 | K-Radar | 2028 | `checkpoint_epoch_160.pth` under `pointpillars_bevgate_dapg_msbc_kradar_car/fair_bevgate_dapg_msbc_kradar_seed2028_retry/ckpt/` | `c83cd4f999181534cdc814579f9a1427571e8e614dcbdc3fa6beb12e936197b7` |
 
-The corresponding prediction-file paths and factorial logs are included in
+The paths in this table are instance-relative provenance paths, not required
+local filesystem paths. The corresponding prediction-file paths and factorial logs are included in
 `strict_fixed_expert_factorial_12cell/`. The full model checkpoints remain on
 the instance because of archive-size constraints; this manifest provides the
 filename, epoch, provenance path, and integrity hash needed to audit the

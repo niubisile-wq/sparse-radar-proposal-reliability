@@ -1077,7 +1077,10 @@ $\pm1$ exclusion sensitivity rule, the audit would retain 18/100 Astyx,
 the last case is not estimable as an AP experiment because no validation frame
 remains. The ``mini'' and
 ``400'' suffixes refer to this frozen conversion protocol, not to a new
-dataset release.
+dataset release. Accordingly, the intended scope is a frame-level
+post-processing study for these frozen conversions; it is not a claim about
+scene-level, vehicle-level, cross-initialization, or deployment-level
+generalization.
 
 The primary metric is car AP$_{R40}$ at 3D IoU 0.50. Forty-point interpolation
 reduces the coarseness of the older 11-point protocol, while the fixed 0.50
@@ -1101,6 +1104,14 @@ We report the mean and sample standard deviation over the three seeds. More
 importantly, the strict route is assessed from paired differences between
 methods trained with the same seed. This pairing reduces some between-seed
 variation and exposes regressions that could be hidden by an average.
+The seed-matched expert is therefore an engineering control for a versioned
+auxiliary detector: primary and expert are independently trained under the
+same data protocol and stochastic seed, then compared on the same frames. It
+tests whether complementary predictions from the same training condition can
+improve the primary ranking without a cross-seed confound. It is not intended
+to establish initialization-independent robustness; the fixed-expert
+cross-seed diagnostic is reported separately for that narrower sensitivity
+question.
 
 The evidence is ordered to limit circular interpretation. The formal
 three-seed comparison supports the principal claims. The seed-2028 progressive
@@ -1511,6 +1522,14 @@ diagnostic. Adding the local vote improves 10/12 cells; both regressions occur
 on Astyx. Thus this audit is a cross-seed stability stress test, not a
 recomputation of the formal endpoint, and supports a gate-led interpretation
 with conditional geometry refinement.
+We retain voting in the formal strict endpoint because it addresses a distinct
+failure mode: a supported primary box can remain just below the 3D-IoU match
+threshold even after its score is re-ranked. The joint threshold-selected
+endpoint therefore tests score consistency plus limited geometric correction.
+The factorial result does not justify treating voting as mandatory: when
+initialization sensitivity is the priority, the gate-only route is the more
+stable fallback, while voting should be enabled only when its measured
+localization benefit and stage-level cost are acceptable.
 
 \begin{table}[H]
 \centering
