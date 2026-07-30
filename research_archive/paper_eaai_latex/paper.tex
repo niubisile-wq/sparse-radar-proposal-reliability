@@ -69,8 +69,10 @@ dataset- or seed-specific regressions. We formulate proposal reliability in
 terms of proposal availability, confidence quality, and geometric consistency,
 and develop a controlled refinement framework around these dimensions. The
 framework preserves borderline candidates, recovers score-capped residual
-proposals, aligns confidence with localization quality, and applies optional
-geometry voting only to supported primary boxes. We evaluate the method on
+proposals, aligns confidence with localization quality, and uses expert-consistency
+score reweighting with conditional geometry voting only for supported primary boxes.
+The M3 quality-aligned route is evaluated separately as a high-performance route.
+We evaluate the method on
 Astyx, MAN TruckScenes,
 V2X-Radar-V, and K-Radar using three training seeds and AP$_{R40}$ at a
 three-dimensional intersection-over-union threshold of 0.50. The strict
@@ -82,9 +84,10 @@ A leave-one-dataset-out threshold-selection audit gives a positive held-out
 dataset mean on all four datasets and 11/12 positive held-out seed
 differences, but includes one $-0.2945$ AP seed-level regression under the
 unconstrained threshold-transfer screen. A complete vote-only audit is not
-uniformly positive (6/12 cells; mean $-0.0274$ AP), indicating that the expert
-gate, rather than voting alone, is the more stable component in the four-cell
-diagnostic. A separate high-performance route increases macro
+uniformly positive (6/12 cells; mean $-0.0274$ AP), whereas the expert-gate
+diagnostic is positive in its four evaluated cells; this supports an
+expert-consistency-led interpretation, with geometry voting treated as conditional
+evidence rather than a universally beneficial operation. A separate high-performance route increases macro
 AP from 35.3552 to 39.1214, although one TruckScenes seed decreases. Progressive
 ablation, calibration diagnostics, point-dropout tests, threshold sensitivity,
 runtime profiling, and qualitative analysis link these outcomes to specific
@@ -95,8 +98,10 @@ consistent paired gains at measurable post-processing cost under the evaluated
 protocol, whereas confidence
 quality alignment delivers larger average gains and improved calibration
 without guaranteeing uniform improvement across diagnostics. The frozen
-conversions provide frame-level IDs but no scene or vehicle keys; the results
-therefore do not establish scene-disjoint or deployment-level generalization.
+conversions provide frame-level IDs but no scene or vehicle keys. A numeric
+$\pm1$ adjacency audit flags possible cross-split temporal correlation, including
+80/80 K-Radar validation IDs adjacent to training IDs; the results therefore do
+not establish scene-disjoint or deployment-level generalization.
 \end{abstract}
 
 \begin{keyword}
@@ -180,7 +185,8 @@ result.
 Rather than enlarging the backbone, this paper treats proposal selection as a
 reliability problem. The framework combines candidate-preserving NMS (M1),
 score-capped residual recovery (M2), quality-aligned scoring (M3), and a
-strict route that gates and optionally votes only among supported primary proposals.
+strict route centered on expert-consistency score reweighting with optional
+voting only among supported primary proposals.
 These components assign distinct roles to proposal availability, confidence
 quality, and geometric consistency while keeping their effects separately
 testable.
@@ -206,14 +212,14 @@ reliability into availability, quality, and consistency. This formulation
 connects candidate preservation, residual recovery, confidence--localization
 alignment, and local geometric consensus without changing the compact
 PointPillars-style backbone.
-\item \textbf{Constrained proposal refinement.} We develop an asymmetric
-evidence path in which recovered residuals are score capped, positive
-classification targets combine objectness with online 3D IoU, and the strict
-endpoint gates supported primary proposals before any optional center-and-heading
-vote. These constraints
+\item \textbf{Expert-consistency refinement with conditional geometry.} We develop
+an asymmetric evidence path in which recovered residuals are score capped, the
+strict endpoint reweights primary proposals using an auxiliary expert, and any
+center-and-heading vote is applied only after spatial support is established.
+The separate M3 quality-aligned route is not part of the strict endpoint. These constraints
 allow weak evidence to assist a detection without letting it dominate ranking
 or expand box geometry.
-\item \textbf{Paired reliability evaluation.} We operationalize the strict
+\item \textbf{Paired protocol evaluation.} We operationalize the strict
 route's protocol-bounded paired no-regression behavior as positive improvement over RDAR in every matched dataset--seed
 cell and evaluate it across four radar datasets and three seeds. The selected
 strict route improves all 12 pairs, with a mean gain of 0.9726 AP and a minimum
@@ -1038,11 +1044,20 @@ calibration, image, and annotation fields, but no explicit scene or sequence
 key. An audit found zero exact overlap in the available point-cloud IDs
 between train and validation for all four conversions. It did, however, find
 validation IDs adjacent to a training ID for 82/100 Astyx frames, 4/80
-TruckScenes frames, 1/80 V2X-Radar-V frames, and 80/80 K-Radar frames. Because
+TruckScenes frames, 1/80 V2X-Radar-V frames, and 80/80 K-Radar frames. Here,
+``adjacent'' means that the numeric values of the available frame-level
+\texttt{point\_cloud.pc\_idx} fields differ by exactly one, using a symmetric
+$\pm1$ test. This is an audit rule, not proof that the IDs encode time; the
+converted records do not expose ordering metadata with which to test wider
+temporal windows or recover scene identity. Because
 the conversion lacks scene or vehicle identifiers, these results cannot
 exclude same-scene, same-vehicle, or temporal correlation across the split.
 We therefore define the reproducible evaluation as a frame-level frozen
-protocol and do not claim scene-disjoint generalization. The ``mini'' and
+protocol and do not claim scene-disjoint generalization. Under the strict
+$\pm1$ exclusion sensitivity rule, the audit would retain 18/100 Astyx,
+76/80 TruckScenes, 79/80 V2X-Radar-V, and 0/80 K-Radar validation frames;
+the last case is not estimable as an AP experiment because no validation frame
+remains. The ``mini'' and
 ``400'' suffixes refer to this frozen conversion protocol, not to a new
 dataset release.
 
