@@ -76,8 +76,8 @@ The M3 quality-aligned route is evaluated separately as a high-performance route
 We evaluate the method on
 Astyx, MAN TruckScenes,
 V2X-Radar-V, and K-Radar using three training seeds and AP$_{R40}$ at a
-three-dimensional intersection-over-union threshold of 0.50. The strict
-protocol-bounded route improves the RDAR baseline in all 12 matched dataset-seed
+three-dimensional intersection-over-union threshold of 0.50. The seed-matched
+auxiliary-expert strict route improves the RDAR baseline in all 12 matched dataset-seed
 comparisons under a threshold selected within the evaluated protocol, yielding
 a mean gain of 0.9726 AP. Treating the four datasets as resampling clusters gives a
 descriptive four-dataset cluster-resampling interval of [0.5464, 1.4834] AP.
@@ -476,7 +476,7 @@ gating and conservative local voting to RDAR-compatible primary proposals.
 The branch point is important because the strict route is not obtained by
 appending voting to the final high-performance configuration.
 
-\begin{figure*}[!t]
+\begin{figure*}[!b]
 \centering
 \includegraphics[width=\textwidth]{figures/fig1_framework.pdf}
 \reviewcaption{Overview of the reliability-oriented proposal-refinement framework.
@@ -1490,7 +1490,12 @@ expert seed 2027 for Astyx, TruckScenes, and V2X-Radar-V, and seed 2028 for
 K-Radar; the formal endpoint uses the corresponding seed-matched expert
 stream. Table~\ref{tab:fixed-expert-factorial} reports AP differences from the
 same RDAR primary outputs. The two protocols therefore need not produce the
-same AP: expert scores and matched boxes change the ranking and, for the vote
+same AP: the fixed checkpoints were selected by availability before reading
+the factorial AP values, not by optimizing these differences. Seed 2027 is
+the common central checkpoint available for Astyx, TruckScenes, and
+V2X-Radar-V; K-Radar uses seed 2028 because it is the available epoch-160
+expert checkpoint for that conversion. Expert scores and matched boxes change
+the ranking and, for the vote
 variant, the geometry of the submitted boxes. Gate-only improves 11/12 cells
 and has a positive mean on every frozen conversion under the fixed-expert
 diagnostic. Adding the local vote improves 10/12 cells; both regressions occur
@@ -1552,7 +1557,7 @@ largest macro step, driven especially by K-Radar. Because only one seed is
 shown, the figure explains module behavior but does not establish three-seed
 monotonicity.
 
-\begin{figure*}[!t]
+\begin{figure*}[!b]
 \centering
 \includegraphics[width=\textwidth]{figures/fig4_progressive_seed2028.pdf}
 \reviewcaption{Progressive seed-2028 construction analysis across the four radar
@@ -2226,12 +2231,16 @@ geometry refinement, not a claim for voting as a universally improving operation
 
 The four-conversion, three-seed evaluation supports two different conclusions.
 Within the Astyx, MAN TruckScenes, V2X-Radar-V, and K-Radar frozen conversions,
-the strict route
+the seed-matched auxiliary-expert strict route
 improves RDAR in all 12 paired comparisons. Its mean improvement is 0.9726 AP,
 its minimum improvement is 0.1718 AP, and the four-dataset cluster-resampling
 interval for the dataset-level mean is [0.5464, 1.4834] AP. This is a
 descriptive uncertainty summary for the four evaluated datasets, not a
-population-level confidence interval. The high-performance route raises macro AP
+population-level confidence interval. K-Radar contributes the largest
+conversion-level mean gain (+1.6928 AP) and the largest single paired gain
+(+2.6060 AP), so the aggregate +0.9726 AP should be read as a result of the
+four-conversion mixture rather than as a K-Radar-independent effect. The
+high-performance route raises macro AP
 from 35.3552 to 39.1214, a gain of 3.7662 AP, and improves ECE in the
 seed-2028 diagnostic audit. It nevertheless contains one negative
 TruckScenes seed result and is therefore not assigned the strict

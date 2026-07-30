@@ -37,3 +37,8 @@ remains conditional.
 
 The raw prediction outputs and logs are stored on the instance under:
 `results/review_upgrade_20260730/strict_fixed_expert_factorial_12cell/`.
+The fixed-expert choice was made before reading the factorial AP values and was
+based on checkpoint availability: seed 2027 is the common central checkpoint
+for Astyx, TruckScenes, and V2X-Radar-V, while seed 2028 is the available
+epoch-160 expert checkpoint for K-Radar. No factorial result was used to select
+these checkpoints.
