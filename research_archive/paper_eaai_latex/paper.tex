@@ -79,14 +79,19 @@ comparisons under the selected finite protocol, yielding a mean gain of
 descriptive four-dataset cluster-resampling interval of [0.5464, 1.4834] AP.
 A leave-one-dataset-out threshold-selection audit gives a positive held-out
 dataset mean on all four datasets and 11/12 positive held-out seed
-differences. A separate high-performance route increases macro
+differences, but includes one $-0.2945$ AP seed-level regression under the
+unconstrained threshold-transfer screen. A complete vote-only audit is not
+uniformly positive (6/12 cells; mean $-0.0274$ AP), indicating that the expert
+gate, rather than voting alone, is the more stable component in this frozen
+study. A separate high-performance route increases macro
 AP from 35.3552 to 39.1214, although one TruckScenes seed decreases. Progressive
 ablation, calibration diagnostics, point-dropout tests, threshold sensitivity,
 runtime profiling, and qualitative analysis link these outcomes to specific
 proposal mechanisms. These results show that protocol-bounded paired
 no-regression behavior and maximum average accuracy are distinct objectives:
-constrained voting provides
-consistent paired gains at measurable post-processing cost, whereas confidence
+the selected expert-gated route provides
+consistent paired gains at measurable post-processing cost under the evaluated
+protocol, whereas confidence
 quality alignment delivers larger average gains and improved calibration
 without guaranteeing uniform improvement across diagnostics.
 \end{abstract}
@@ -200,8 +205,9 @@ alignment, and local geometric consensus without changing the compact
 PointPillars-style backbone.
 \item \textbf{Constrained proposal refinement.} We develop an asymmetric
 evidence path in which recovered residuals are score capped, positive
-classification targets combine objectness with online 3D IoU, and strict
-voting updates only supported primary centers and headings. These constraints
+classification targets combine objectness with online 3D IoU, and the strict
+endpoint gates supported primary proposals before any optional center-and-heading
+vote. These constraints
 allow weak evidence to assist a detection without letting it dominate ranking
 or expand box geometry.
 \item \textbf{Paired reliability evaluation.} We operationalize the strict
@@ -332,7 +338,7 @@ can be accurate and still overconfident \cite{guo2017calibration}. Object
 detection complicates the definition further because correctness depends on
 both class and localization threshold. For this reason, we report ECE as a
 diagnostic for the high-performance route and do not infer calibration from an
-AP increase. The strict voting route is evaluated for paired AP consistency,
+AP increase. The strict route is evaluated for paired AP consistency,
 not promoted as a calibration technique.
 
 \subsection{Radar benchmarks and multimodal context}
@@ -626,7 +632,28 @@ reduction 8 and an initial bounded residual scale of 0.1, followed by the
 multi-scale BEV context module with hidden width 32, dilations $[1,2,4]$, and
 initial residual scale 0.1. The gate is channel-wise: for BEV feature $x$ it
 computes $x\mapsto x(1+r(2\sigma(g(\operatorname{GAP}(x)))-1))$, where $r$ is
-learned and initialized to 0.1. The expert is trained independently with the
+learned and initialized to 0.1. At the pillar level, the density-aware gate
+normalizes each pillar feature $p_i$, forms a scene context $c_i$ by averaging
+normalized pillars from the same sample, and encodes the normalized point
+count $d_i=\operatorname{clip}(\log(1+n_i)/\log(33),0,1)$. It then computes
+
+\begin{equation}
+z_i=2\,\sigma\!\left(W_2\,\operatorname{GELU}\!\left(W_1[p_i;c_i;d_i]\right)\right)-1,
+\qquad p_i' = p_i\odot(1+r_p z_i),
+\end{equation}
+
+where the hidden width is 32 and $r_p$ is initialized to zero. The multi-scale
+BEV context first reduces the concatenated BEV tensor to 32 channels, applies
+depthwise $3\times3$ branches with dilations $1,2,4$, concatenates the branch
+outputs, projects them back to the original channel count, and adds the
+residual $r_c h(x)$ with $r_c=0.1$ at initialization. These definitions make
+the expert modules explicit rather than relying only on YAML names. In the
+released implementation these correspond to the classes
+\texttt{DensityAwarePillarGate} and \texttt{MultiScaleBEVContext}; the stable
+channel gate is \texttt{StableSEGate2D}. Their source files are
+\texttt{density\_aware\_pillar\_gate.py} and
+\texttt{base\_bev\_backbone.py} in the archived commit. The expert
+is trained independently with the
 same frozen split, augmentation policy, optimizer, 160-epoch schedule, and
 checkpoint epoch as the paired primary configuration; no additional labels or
 sensor inputs are used. The exact dataset-specific YAML files, checkpoint
@@ -992,6 +1019,16 @@ spatial range is the common model input range recorded in the frozen
 configurations, not a claim about the physical maximum range of each sensor.}
 \end{table*}
 
+The frozen split manifests contain 300/100 train/validation frame records for
+Astyx and 320/80 for each of TruckScenes-mini, V2X-Radar-V-400, and
+K-Radar-400. The records expose frame-level point-cloud, calibration, image,
+and annotation fields; they do not carry an explicit scene or sequence key in
+the released conversion. We therefore define the reproducible split by the
+listed \texttt{*\_infos\_train.pkl} and \texttt{*\_infos\_val.pkl} files and do not claim a
+scene-level leakage audit beyond those frozen manifests. These counts also
+clarify that the ``mini'' and ``400'' suffixes refer to the frozen conversion
+protocol used here, not to a new dataset release.
+
 The primary metric is car AP$_{R40}$ at 3D IoU 0.50. Forty-point interpolation
 reduces the coarseness of the older 11-point protocol, while the fixed 0.50
 IoU threshold makes the proposal-localization requirement explicit. All
@@ -1297,7 +1334,7 @@ Control & Astyx & TruckScenes & V2X-Radar-V & K-Radar & Positive datasets \\
 Standard box voting & +0.4723 & -0.0831 & +0.5342 & +0.0097 & 2/4 \\
 Gaussian Soft-NMS ($\sigma=0.5$) & -0.1831 & +0.0909 & -0.2098 & +0.0196 & 0/4 \\
 Weighted box fusion (IoU $=0.5$) & -0.0118 & -0.1305 & -0.2474 & -0.1896 & 0/4 \\
-Strict quality-aligned route & +0.8551 & +0.9207 & +0.4216 & +1.6928 & 4/4 \\
+Strict route & +0.8551 & +0.9207 & +0.4216 & +1.6928 & 4/4 \\
 \bottomrule
 \end{tabular}
 \endgroup
@@ -1309,7 +1346,8 @@ reports the same primary RDAR outputs with neither operation, the expert gate
 only, the restricted vote only, and the expert gate followed by voting. The
 gate supplies the positive shift in every evaluated condition, whereas vote
 only is not uniformly positive. Combining the two remains positive in all four
-conditions, but the result is not reducible to generic voting alone.
+conditions, but this is a four-cell diagnostic rather than a complete
+factorial claim.
 
 \begin{table}[!t]
 \centering
@@ -1338,6 +1376,45 @@ lane within each row. The expert checkpoints are epoch 160; Astyx, TruckScenes,
 and V2X-Radar-V use seed 2027, while K-Radar uses the available seed-2028
 expert checkpoint. This is a component diagnostic, not a replacement for the
 formal three-seed strict-route result.}
+\end{table}
+
+To test whether voting itself provides a stable cross-seed contribution, we
+also applied the proposed vote-only operation to all 12 frozen RDAR cells,
+without using expert predictions. Table~\ref{tab:vote-only-12cell} reports the
+result. The mean change is $-0.0274$ AP and only 6/12 cells improve. Thus the
+current evidence identifies expert-consistency reweighting, rather than voting
+alone, as the more reproducible source of the strict-route gain; voting is an
+optional geometric refinement whose benefit is conditional on the gated
+proposal distribution.
+
+\begin{table}[!t]
+\centering
+\reviewcaption{Complete 12-cell audit of the proposed vote-only operation.}
+\label{tab:vote-only-12cell}
+\begingroup
+\color{black}
+\scriptsize
+\setlength{\tabcolsep}{3pt}
+\renewcommand{\arraystretch}{1.10}
+\begin{tabularx}{\columnwidth}{@{}Xrrr@{}}
+\toprule
+Dataset & Seed 2026 & Seed 2027 & Seed 2028 \\
+\midrule
+Astyx & +0.1280 & +0.1608 & +0.2190 \\
+TruckScenes & -0.1660 & -0.3526 & +0.4530 \\
+V2X-Radar-V & +0.3331 & -0.8661 & -0.0988 \\
+K-Radar & -0.1540 & +0.1909 & -0.1756 \\
+\midrule
+Mean / positive cells & \multicolumn{3}{c}{-0.0274 AP / 6 of 12} \\
+\bottomrule
+\end{tabularx}
+\endgroup
+\vspace{2pt}
+\parbox{\columnwidth}{\scriptsize
+Entries are AP differences from the corresponding RDAR output. The same
+$\tau_v=0.24$, strength $0.40$, BEV-center mode, and 50-entry residual
+exclusion are used in every cell. This table is a complete vote-only audit,
+not a claim that gate and vote have been evaluated factorially in all 12 cells.}
 \end{table}
 
 V2X-Radar-V defines the narrowest margin. Its mean improvement is only 0.4216,
@@ -1580,7 +1657,8 @@ threshold insensitivity.
 
 Because the main strict threshold was selected on the four-dataset protocol,
 we performed two leave-one-dataset-out threshold-transfer screens as
-sensitivity checks. The first is the conservative ``training-positive'' screen
+sensitivity checks. The first is the conservative ``all-positive
+threshold-selection'' screen
 in Table~\ref{tab:lodo-audit}: using only the other nine dataset--seed cells, we
 retained grid settings whose nine differences were all positive and selected
 the one with the highest training mean. The second is an unconstrained
@@ -1783,14 +1861,21 @@ followed by a Python loop over proposals. Across the profiled subsets, it votes
 number of local neighborhoods explains why a mathematically simple operation
 can dominate runtime.
 
-For deployment planning, we additionally recorded a conservative sum of the
-separately profiled primary-detector, expert-detector, and voting stages:
-187.71 ms for Astyx, 57.95 ms for TruckScenes, 65.61 ms for V2X-Radar-V, and
-68.08 ms for K-Radar. These are upper-bound planning figures rather than
-synchronized end-to-end measurements because the component timings were
-collected in separate profiling contexts. They should not be converted into
-FPS claims; a same-process batch-1 endpoint profile remains necessary before
-real-time deployment conclusions.
+To close the most important profiling gap, we also ran a same-process,
+batch-1 endpoint profile that loaded the primary and expert checkpoints in one
+Python process and measured the sequential primary forward, expert forward,
+and post-processing endpoint. The mean endpoint times were 16.08 ms on Astyx,
+23.11 ms on TruckScenes, and 21.62 ms on V2X-Radar-V (six measured samples
+after two warm-up samples), corresponding to 62.2, 43.3, and 46.3 Hz,
+respectively; peak allocated memory was 197--201 MB on an RTX 4080 SUPER.
+This endpoint profile uses the detector's returned proposals, which contained
+20--27 boxes in the sampled Astyx frames; consequently, the 50-entry residual
+exclusion leaves no primary boxes for the offline 500-proposal voting path.
+We therefore report these numbers as a reproducible primary-plus-expert
+endpoint profile, not as a claim that they fully measure the candidate-rich
+strict route. The candidate-rich voting cost remains separately reported
+above, and a raw-proposal in-network implementation is needed for a fully
+comparable strict-route FPS measurement.
 
 An additional GPU scaling profile, with one warm-up frame excluded, measured
 about 1.5--1.6 ms per frame at 50 proposals and 9.7--10.1 ms at 500 proposals,
@@ -1947,8 +2032,10 @@ be advertised as free or necessarily real time.
 
 The two-route result can be used as a deployment menu. RDAR is the lighter
 reference. The high-performance route provides the highest mean AP and better
-ECE at the same parameter scale. Strict voting supplies the strongest paired
-no-regression evidence but incurs extra latency and poorer calibration. No
+ECE at the same parameter scale. The selected expert-gated strict route
+supplies the strongest paired no-regression evidence in the evaluated protocol
+but incurs extra latency and poorer calibration; vote-only is not uniformly
+beneficial. No
 single route dominates accuracy, reliability, calibration, and runtime
 simultaneously.
 
@@ -1963,10 +2050,11 @@ proposal mechanisms are architecture independent.
 
 The progressive construction analysis is based on seed 2028. It shows a coherent
 path but does not establish independent, monotonic, three-seed contribution
-for every module. A complete factorial evaluation would be expensive but would
-separate interactions between candidate preservation, recovery, and quality
-alignment more strongly. In particular, the small M2 increment warrants
-careful evaluation before any standalone recovery claim.
+for every module. The complete vote-only audit now separates the cross-seed
+behavior of voting from the four-cell expert-gate diagnostic, but a full
+expert-gate-by-vote factorial across all 12 cells remains unavailable in the
+frozen checkpoint set. In particular, the small M2 increment warrants careful
+evaluation before any standalone recovery claim.
 
 The strict route was selected from a threshold grid evaluated on the same
 four-dataset protocol used to report it. Neighboring all-positive settings
@@ -1996,11 +2084,14 @@ The resulting framework assigns a restricted role to each source of evidence.
 M1 preserves borderline candidates, M2 recovers complementary residual boxes
 while capping their scores, and M3 trains confidence against a target that
 combines objectness with online 3D IoU. The strict endpoint then uses an
-expert-consistency gate and local voting that can update only the BEV center
+expert-consistency gate and optional local voting that can update only the BEV center
 and heading of supported primary proposals. This asymmetric design is the main
 methodological contribution: auxiliary evidence can recover, reweight, or
 stabilize a detection, but it cannot silently acquire all privileges of the
-primary stream or enlarge the predicted geometry.
+primary stream or enlarge the predicted geometry. The complete vote-only audit
+shows that geometric voting alone is not uniformly beneficial, so the evidence
+supports this asymmetric, gate-led interpretation rather than a claim for
+voting as a universally improving operation.
 
 The four-dataset, three-seed evaluation supports two different conclusions.
 Across Astyx, MAN TruckScenes, V2X-Radar-V, and K-Radar, the strict route
@@ -2012,13 +2103,18 @@ population-level confidence interval. The high-performance route raises macro AP
 from 35.3552 to 39.1214, a gain of 3.7662 AP, and improves ECE in the
 seed-2028 diagnostic audit. It nevertheless contains one negative
 TruckScenes seed result and is therefore not assigned the strict
-no-regression label.
+no-regression label. The leave-one-dataset-out transfer audit is deliberately
+weaker: it retains positive held-out dataset means but contains one negative
+seed-level cell ($-0.2945$ AP), so it is threshold-transfer sensitivity evidence
+rather than independent confirmation. The strict result should therefore be
+read as selected-protocol evidence, not a universal reliability guarantee.
 
 The supporting analyses explain why the endpoints differ. The progressive
 seed-2028 study identifies candidate preservation and quality-aligned scoring
 as the main sources of average improvement, while residual recovery contributes
 a smaller incremental change. Calibration results favor the quality-aware
-routes, whereas strict voting improves paired AP without improving ECE. The
+routes, whereas the selected expert-gated strict route improves paired AP
+without improving ECE and the complete vote-only audit is mixed. The
 closed voting grid contains multiple 12-of-12-positive configurations, so the
 strict result is not confined to one isolated threshold; however, stronger
 votes can exchange consistency for a higher macro value. Mixed range and
