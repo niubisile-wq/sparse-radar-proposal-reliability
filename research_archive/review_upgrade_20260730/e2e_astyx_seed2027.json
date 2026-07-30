@@ -1,0 +1,94 @@
+{
+  "primary_cfg": "tools/cfgs/astyx_models/pointpillars_bevgate_dapg_astyx_car.yaml",
+  "expert_cfg": "tools/cfgs/astyx_models/pointpillars_stable_bevgate_dapg_msbc_astyx_car.yaml",
+  "primary_ckpt": "/root/autodl-tmp/稀疏雷达提案可靠性四模块论文实验全量冻结映像_20260727_000030/repos/OpenPCDet_current/output/root/autodl-tmp/radar_champion/repos/OpenPCDet_current/tools/cfgs/astyx_models/pointpillars_bevgate_dapg_astyx_car/fair_bevgate_dapg_astyx_seed2027/ckpt/checkpoint_epoch_160.pth",
+  "expert_ckpt": "/root/autodl-tmp/稀疏雷达提案可靠性四模块论文实验全量冻结映像_20260727_000030/repos/OpenPCDet_current/output/root/autodl-tmp/radar_champion/repos/OpenPCDet_current/tools/cfgs/astyx_models/pointpillars_bevgate_dapg_msbc_astyx_car/fair_bevgate_dapg_msbc_astyx_seed2027/ckpt/checkpoint_epoch_160.pth",
+  "device": "NVIDIA GeForce RTX 4080 SUPER",
+  "warmup": 2,
+  "samples": 6,
+  "timing": {
+    "primary_forward_ms": {
+      "mean_ms": 9.224644163623452,
+      "std_ms": 1.7691171962133798,
+      "min_ms": 8.35313880816102,
+      "max_ms": 12.831930071115494
+    },
+    "expert_forward_ms": {
+      "mean_ms": 6.830250999579827,
+      "std_ms": 0.6235932630792803,
+      "min_ms": 6.137473043054342,
+      "max_ms": 7.711841957643628
+    },
+    "h2d_and_framework_ms": {
+      "mean_ms": 1.2542394688352942,
+      "std_ms": 1.6418091375198216,
+      "min_ms": 0.5425228737294674,
+      "max_ms": 4.6048390213400126
+    },
+    "gate_vote_ms": {
+      "mean_ms": 0.051477535938223205,
+      "std_ms": 0.0011811500036532881,
+      "min_ms": 0.05016312934458256,
+      "max_ms": 0.05320599302649498
+    },
+    "total_e2e_ms": {
+      "mean_ms": 17.36107503529638,
+      "std_ms": 2.473244123587089,
+      "min_ms": 15.106366947293282,
+      "max_ms": 20.912873093038797
+    }
+  },
+  "fps_from_mean_e2e": 57.600119691143796,
+  "peak_memory_allocated_mb": 197.01220703125,
+  "scope": "same-process sequential batch-1 primary + expert + IoU gate + box voting; profiling endpoint includes H2D and Python orchestration but excludes dataset prefetch wait",
+  "rows": [
+    {
+      "frame_id": "000117",
+      "primary_forward_ms": 8.516544010490179,
+      "expert_forward_ms": 6.481056101620197,
+      "h2d_and_framework_ms": 0.5425228737294674,
+      "gate_vote_ms": 0.05016312934458256,
+      "total_e2e_ms": 15.590765047818422
+    },
+    {
+      "frame_id": "000205",
+      "primary_forward_ms": 12.831930071115494,
+      "expert_forward_ms": 6.485488964244723,
+      "h2d_and_framework_ms": 0.6290518213063478,
+      "gate_vote_ms": 0.05170400254428387,
+      "total_e2e_ms": 19.998675910755992
+    },
+    {
+      "frame_id": "000449",
+      "primary_forward_ms": 8.601288078352809,
+      "expert_forward_ms": 7.482082117348909,
+      "h2d_and_framework_ms": 0.620533712208271,
+      "gate_vote_ms": 0.05020108073949814,
+      "total_e2e_ms": 16.754540149122477
+    },
+    {
+      "frame_id": "000378",
+      "primary_forward_ms": 8.502444019541144,
+      "expert_forward_ms": 6.683563813567162,
+      "h2d_and_framework_ms": 0.5645472556352615,
+      "gate_vote_ms": 0.05222996696829796,
+      "total_e2e_ms": 15.803229063749313
+    },
+    {
+      "frame_id": "000132",
+      "primary_forward_ms": 8.35313880816102,
+      "expert_forward_ms": 6.137473043054342,
+      "h2d_and_framework_ms": 0.5639421287924051,
+      "gate_vote_ms": 0.05136104300618172,
+      "total_e2e_ms": 15.106366947293282
+    },
+    {
+      "frame_id": "000425",
+      "primary_forward_ms": 8.542519994080067,
+      "expert_forward_ms": 7.711841957643628,
+      "h2d_and_framework_ms": 4.6048390213400126,
+      "gate_vote_ms": 0.05320599302649498,
+      "total_e2e_ms": 20.912873093038797
+    }
+  ]
+}

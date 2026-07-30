@@ -1,0 +1,94 @@
+{
+  "primary_cfg": "tools/cfgs/astyx_models/pointpillars_bevgate_dapg_msbc_v2xradarv_car.yaml",
+  "expert_cfg": "tools/cfgs/astyx_models/pointpillars_stable_bevgate_dapg_msbc_v2xradarv_car.yaml",
+  "primary_ckpt": "/root/autodl-tmp/稀疏雷达提案可靠性四模块论文实验全量冻结映像_20260727_000030/repos/OpenPCDet_current/output/root/autodl-tmp/radar_champion/repos/OpenPCDet_current/tools/cfgs/astyx_models/pointpillars_bevgate_dapg_msbc_v2xradarv_car/fair_bevgate_dapg_msbc_v2xradarv_seed2027/ckpt/checkpoint_epoch_160.pth",
+  "expert_ckpt": "/root/autodl-tmp/稀疏雷达提案可靠性四模块论文实验全量冻结映像_20260727_000030/repos/OpenPCDet_current/output/root/autodl-tmp/radar_champion/repos/OpenPCDet_current/tools/cfgs/astyx_models/pointpillars_bevgate_dapg_msbc_v2xradarv_car/fair_bevgate_dapg_msbc_v2xradarv_seed2027/ckpt/checkpoint_epoch_160.pth",
+  "device": "NVIDIA GeForce RTX 4080 SUPER",
+  "warmup": 2,
+  "samples": 6,
+  "timing": {
+    "primary_forward_ms": {
+      "mean_ms": 14.245781426628431,
+      "std_ms": 9.859611933740076,
+      "min_ms": 7.897898089140654,
+      "max_ms": 33.76026498153806
+    },
+    "expert_forward_ms": {
+      "mean_ms": 6.533083777564268,
+      "std_ms": 1.0476211949527774,
+      "min_ms": 5.104172974824905,
+      "max_ms": 7.636522874236107
+    },
+    "h2d_and_framework_ms": {
+      "mean_ms": 0.7868813117966056,
+      "std_ms": 0.1845734046742146,
+      "min_ms": 0.5111133214086294,
+      "max_ms": 0.9682099334895611
+    },
+    "gate_vote_ms": {
+      "mean_ms": 0.05068098350117604,
+      "std_ms": 0.007338820383163896,
+      "min_ms": 0.04686298780143261,
+      "max_ms": 0.06558396853506565
+    },
+    "total_e2e_ms": {
+      "mean_ms": 21.616867432991665,
+      "std_ms": 10.35438445765349,
+      "min_ms": 14.019144931808114,
+      "max_ms": 41.897292947396636
+    }
+  },
+  "fps_from_mean_e2e": 46.26017174319161,
+  "peak_memory_allocated_mb": 200.6337890625,
+  "scope": "same-process sequential batch-1 primary + expert + IoU gate + box voting; profiling endpoint includes H2D and Python orchestration but excludes dataset prefetch wait",
+  "rows": [
+    {
+      "frame_id": "000322",
+      "primary_forward_ms": 13.657765928655863,
+      "expert_forward_ms": 6.052865879610181,
+      "h2d_and_framework_ms": 0.8895450737327337,
+      "gate_vote_ms": 0.048693036660552025,
+      "total_e2e_ms": 20.64924594014883
+    },
+    {
+      "frame_id": "000323",
+      "primary_forward_ms": 12.85943784750998,
+      "expert_forward_ms": 7.636522874236107,
+      "h2d_and_framework_ms": 0.7689043413847685,
+      "gate_vote_ms": 0.047659967094659805,
+      "total_e2e_ms": 21.312997909262776
+    },
+    {
+      "frame_id": "000324",
+      "primary_forward_ms": 8.804909884929657,
+      "expert_forward_ms": 7.100260118022561,
+      "h2d_and_framework_ms": 0.6328581366688013,
+      "gate_vote_ms": 0.04690885543823242,
+      "total_e2e_ms": 16.585365869104862
+    },
+    {
+      "frame_id": "000325",
+      "primary_forward_ms": 8.494411827996373,
+      "expert_forward_ms": 5.744748981669545,
+      "h2d_and_framework_ms": 0.9506570640951395,
+      "gate_vote_ms": 0.04686298780143261,
+      "total_e2e_ms": 15.237157000228763
+    },
+    {
+      "frame_id": "000326",
+      "primary_forward_ms": 7.897898089140654,
+      "expert_forward_ms": 5.104172974824905,
+      "h2d_and_framework_ms": 0.9682099334895611,
+      "gate_vote_ms": 0.048377085477113724,
+      "total_e2e_ms": 14.019144931808114
+    },
+    {
+      "frame_id": "000327",
+      "primary_forward_ms": 33.76026498153806,
+      "expert_forward_ms": 7.5599318370223045,
+      "h2d_and_framework_ms": 0.5111133214086294,
+      "gate_vote_ms": 0.06558396853506565,
+      "total_e2e_ms": 41.897292947396636
+    }
+  ]
+}
