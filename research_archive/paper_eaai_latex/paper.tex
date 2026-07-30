@@ -226,6 +226,9 @@ center-and-heading vote is applied only after spatial support is established.
 The separate M3 quality-aligned route is not part of the strict endpoint. These constraints
 allow weak evidence to assist a detection without letting it dominate ranking
 or expand box geometry.
+The M3 branch is a radar-specific quality-aware adaptation evaluated against
+the study's controls; without direct GFL, VarifocalNet, or independent IoU-head
+comparisons, we do not claim superiority over those established formulations.
 \item \textbf{Paired protocol evaluation.} We operationalize the strict
 route's protocol-bounded paired no-regression behavior as positive improvement over RDAR in every matched dataset--seed
 cell and evaluate it across four frozen radar conversions and three seeds. The selected
@@ -682,6 +685,9 @@ same frozen split, augmentation policy, optimizer, 160-epoch schedule, and
 checkpoint epoch as the paired primary configuration; no additional labels or
 sensor inputs are used. The exact dataset-specific YAML files, checkpoint
 paths, and commit are included in the reproducibility archive.
+The fixed-expert checkpoint filenames, epoch, provenance paths, and SHA256
+hashes are listed in
+\texttt{expert\_checkpoint\_manifest\_20260730.md}.
 For the fixed-expert factorial audit, the expert checkpoint is held fixed
 within each conversion: seed 2027 is used for Astyx, TruckScenes, and
 V2X-Radar-V, and seed 2028 is used for K-Radar, while the primary prediction
@@ -1221,7 +1227,8 @@ The quality-aligned and high-performance tags correspond to
 \end{table*}
 
 The formal three-seed comparison shows two distinct outcomes. RDAR obtains a macro mean of
-35.3552. Strict proposal voting increases it to 36.3278, a gain of 0.9726 AP.
+35.3552. The seed-matched expert-consistency route with conditional geometry
+refinement increases it to 36.3278, a gain of 0.9726 AP.
 The gain is modest relative to the high-performance branch, but every
 dataset-level mean increases: 0.8551 on Astyx, 0.9207 on TruckScenes, 0.4216
 on V2X-Radar-V, and 1.6928 on K-Radar. TruckScenes is the only dataset on
@@ -1688,7 +1695,8 @@ accuracy adjustment is not uniformly best calibrated even though it has the
 largest macro AP. This result reinforces the separation between ranking,
 calibration, and aggregate accuracy.
 
-Strict proposal voting behaves differently. It wins all formal AP pairs but
+The seed-matched expert-consistency route behaves differently. It wins all
+formal AP pairs but
 worsens ECE in all 12 diagnostic comparisons, with a mean unfavorable change
 of 0.0270. Voting shifts geometry and reweights proposal support after the
 confidence has been learned; it was not optimized to preserve probability
