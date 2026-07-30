@@ -15,6 +15,20 @@ the manuscript must retain the stated protocol boundaries.
 | Expert detector is under-specified | Added architecture, stable BEV gate equation, training schedule, checkpoint epoch, and dataset-specific configuration names | `paper.tex`, `expert_specification_20260730.md` | Raw datasets and large checkpoints remain governed by provider/storage constraints; exact provenance is archived separately. |
 | Reproducibility materials are incomplete | Source, PDF, figures, frozen summaries, controls, LODO outputs, component diagnostic, and runtime logs packaged | `EAAI_submission_package_20260730.zip` and `review_upgrade_20260730/` | Raw datasets and checkpoints remain governed by provider/storage constraints. |
 
+## New split-validity audit
+
+Direct inspection of the eight frozen train/validation info files found zero
+exact overlap in `point_cloud.pc_idx` for every dataset. It also found
+validation IDs adjacent to a training ID for 82/100 Astyx frames, 4/80
+TruckScenes frames, 1/80 V2X-Radar-V frames, and 80/80 K-Radar frames. The
+conversion records contain no scene, sequence, vehicle, or timestamp key, so
+this audit cannot prove scene-disjointness or exclude same-scene correlation.
+The manuscript now reports this explicitly and limits all conclusions to the
+frame-level frozen protocol.
+
+Artifact: `frozen_split_audit_20260730.md` and
+`scripts/audit_frozen_split_overlap.py`.
+
 ## Recommended response posture
 
 Keep the formal statement that the strict route improves all 12 matched cells

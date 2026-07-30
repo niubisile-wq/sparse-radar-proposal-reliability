@@ -42,7 +42,7 @@
 
 \begin{frontmatter}
 
-\title{Reliability-Oriented Proposal Refinement for Sparse Radar-Based
+\title{Protocol-Bounded Expert-Consistency Refinement for Sparse Radar-Based
 Three-Dimensional Object Detection}
 
 \author[inst1]{Zixuan Liu}
@@ -69,21 +69,22 @@ dataset- or seed-specific regressions. We formulate proposal reliability in
 terms of proposal availability, confidence quality, and geometric consistency,
 and develop a controlled refinement framework around these dimensions. The
 framework preserves borderline candidates, recovers score-capped residual
-proposals, aligns confidence with localization quality, and restricts voting
-to supported primary boxes. We evaluate the method on Astyx, MAN TruckScenes,
+proposals, aligns confidence with localization quality, and applies optional
+geometry voting only to supported primary boxes. We evaluate the method on
+Astyx, MAN TruckScenes,
 V2X-Radar-V, and K-Radar using three training seeds and AP$_{R40}$ at a
 three-dimensional intersection-over-union threshold of 0.50. The strict
 protocol-bounded route improves the RDAR baseline in all 12 matched dataset-seed
-comparisons under the selected finite protocol, yielding a mean gain of
-0.9726 AP. Treating the four datasets as resampling clusters gives a
+comparisons under a threshold selected within the evaluated protocol, yielding
+a mean gain of 0.9726 AP. Treating the four datasets as resampling clusters gives a
 descriptive four-dataset cluster-resampling interval of [0.5464, 1.4834] AP.
 A leave-one-dataset-out threshold-selection audit gives a positive held-out
 dataset mean on all four datasets and 11/12 positive held-out seed
 differences, but includes one $-0.2945$ AP seed-level regression under the
 unconstrained threshold-transfer screen. A complete vote-only audit is not
 uniformly positive (6/12 cells; mean $-0.0274$ AP), indicating that the expert
-gate, rather than voting alone, is the more stable component in this frozen
-study. A separate high-performance route increases macro
+gate, rather than voting alone, is the more stable component in the four-cell
+diagnostic. A separate high-performance route increases macro
 AP from 35.3552 to 39.1214, although one TruckScenes seed decreases. Progressive
 ablation, calibration diagnostics, point-dropout tests, threshold sensitivity,
 runtime profiling, and qualitative analysis link these outcomes to specific
@@ -93,11 +94,13 @@ the selected expert-gated route provides
 consistent paired gains at measurable post-processing cost under the evaluated
 protocol, whereas confidence
 quality alignment delivers larger average gains and improved calibration
-without guaranteeing uniform improvement across diagnostics.
+without guaranteeing uniform improvement across diagnostics. The frozen
+conversions provide frame-level IDs but no scene or vehicle keys; the results
+therefore do not establish scene-disjoint or deployment-level generalization.
 \end{abstract}
 
 \begin{keyword}
-Sparse radar 3D object detection \sep proposal preservation \sep proposal voting \sep calibration \sep robustness
+Sparse radar 3D object detection \sep expert consistency gating \sep proposal refinement \sep calibration \sep robustness
 \end{keyword}
 
 \end{frontmatter}
@@ -177,7 +180,7 @@ result.
 Rather than enlarging the backbone, this paper treats proposal selection as a
 reliability problem. The framework combines candidate-preserving NMS (M1),
 score-capped residual recovery (M2), quality-aligned scoring (M3), and a
-strict route that gates and votes only among supported primary proposals.
+strict route that gates and optionally votes only among supported primary proposals.
 These components assign distinct roles to proposal availability, confidence
 quality, and geometric consistency while keeping their effects separately
 testable.
@@ -632,21 +635,29 @@ reduction 8 and an initial bounded residual scale of 0.1, followed by the
 multi-scale BEV context module with hidden width 32, dilations $[1,2,4]$, and
 initial residual scale 0.1. The gate is channel-wise: for BEV feature $x$ it
 computes $x\mapsto x(1+r(2\sigma(g(\operatorname{GAP}(x)))-1))$, where $r$ is
-learned and initialized to 0.1. At the pillar level, the density-aware gate
+a learned bounded scalar initialized to 0.1. At the pillar level, the density-aware gate
 normalizes each pillar feature $p_i$, forms a scene context $c_i$ by averaging
 normalized pillars from the same sample, and encodes the normalized point
-count $d_i=\operatorname{clip}(\log(1+n_i)/\log(33),0,1)$. It then computes
+count $d_i=\operatorname{clip}(\log(1+n_i)/\log(33),0,1)$. Specifically,
+$p_i=\operatorname{LayerNorm}(p_i^{\rm raw})$, and $c_i$ is computed only
+from pillars whose first coordinate in the voxel-coordinate tensor equals the
+batch index of $i$; different batch samples therefore never share context.
+If a sample has no occupied pillars, the module returns it unchanged. It then computes
 
 \begin{equation}
 z_i=2\,\sigma\!\left(W_2\,\operatorname{GELU}\!\left(W_1[p_i;c_i;d_i]\right)\right)-1,
 \qquad p_i' = p_i\odot(1+r_p z_i),
 \end{equation}
 
-where the hidden width is 32 and $r_p$ is initialized to zero. The multi-scale
+where $W_1,W_2$ are biased linear layers with the framework's default parameter
+initialization, the hidden width is 32, and $r_p$ is a learned scalar
+initialized to zero. The multi-scale
 BEV context first reduces the concatenated BEV tensor to 32 channels, applies
 depthwise $3\times3$ branches with dilations $1,2,4$, concatenates the branch
-outputs, projects them back to the original channel count, and adds the
-residual $r_c h(x)$ with $r_c=0.1$ at initialization. These definitions make
+outputs, projects them back to the original channel count using a bias-free
+$1\times1$ convolution followed by batch normalization, and adds the residual
+$r_c h(x)$ with scalar $r_c=0.1$ at initialization. Each depthwise branch uses
+its own shared reduced input but does not share branch weights. These definitions make
 the expert modules explicit rather than relying only on YAML names. In the
 released implementation these correspond to the classes
 \texttt{DensityAwarePillarGate} and \texttt{MultiScaleBEVContext}; the stable
@@ -1021,20 +1032,31 @@ configurations, not a claim about the physical maximum range of each sensor.}
 
 The frozen split manifests contain 300/100 train/validation frame records for
 Astyx and 320/80 for each of TruckScenes-mini, V2X-Radar-V-400, and
-K-Radar-400. The records expose frame-level point-cloud, calibration, image,
-and annotation fields; they do not carry an explicit scene or sequence key in
-the released conversion. We therefore define the reproducible split by the
-listed \texttt{*\_infos\_train.pkl} and \texttt{*\_infos\_val.pkl} files and do not claim a
-scene-level leakage audit beyond those frozen manifests. These counts also
-clarify that the ``mini'' and ``400'' suffixes refer to the frozen conversion
-protocol used here, not to a new dataset release.
+K-Radar-400. The corresponding validation car-instance counts are 531, 3950,
+268, and 198, respectively. The records expose frame-level point-cloud,
+calibration, image, and annotation fields, but no explicit scene or sequence
+key. An audit found zero exact overlap in the available point-cloud IDs
+between train and validation for all four conversions. It did, however, find
+validation IDs adjacent to a training ID for 82/100 Astyx frames, 4/80
+TruckScenes frames, 1/80 V2X-Radar-V frames, and 80/80 K-Radar frames. Because
+the conversion lacks scene or vehicle identifiers, these results cannot
+exclude same-scene, same-vehicle, or temporal correlation across the split.
+We therefore define the reproducible evaluation as a frame-level frozen
+protocol and do not claim scene-disjoint generalization. The ``mini'' and
+``400'' suffixes refer to this frozen conversion protocol, not to a new
+dataset release.
 
 The primary metric is car AP$_{R40}$ at 3D IoU 0.50. Forty-point interpolation
 reduces the coarseness of the older 11-point protocol, while the fixed 0.50
 IoU threshold makes the proposal-localization requirement explicit. All
 methods use the same evaluation implementation and class mapping. AP values
 are reported on a 0--100 scale, so a difference of 1.0 denotes one AP point
-rather than one percentage relative to the baseline.
+rather than one percentage relative to the baseline. AP is computed over the
+complete validation set and is not additive over frames; consequently, the
+80--100-frame sizes and car-instance counts are reported as scope descriptors,
+not converted into per-frame AP confidence intervals. The paired and
+cluster-resampling summaries are likewise descriptive for these finite frozen
+sets.
 
 The formal experiment crosses four datasets with seeds 2026, 2027, and 2028.
 For each dataset, models are trained independently under the same optimization
@@ -1049,7 +1071,7 @@ three-seed comparison supports the principal claims. The seed-2028 progressive
 study explains the construction path but is not used as evidence of three-seed
 monotonicity. Calibration and recall-bin analyses diagnose scoring behavior,
 whereas point dropout and threshold grids provide stress and sensitivity tests.
-Runtime profiling and qualitative examples address deployment cost and
+Runtime profiling and qualitative examples address engineering cost and
 mechanism. Secondary analyses are not promoted to formal claims solely because
 their outcomes are favorable.
 
@@ -1307,20 +1329,32 @@ dataset-level reporting.
 
 To separate the proposed reliability-oriented route from generic
 post-processing effects, we also evaluated fixed-parameter controls on the
-same frozen RDAR outputs. Table~\ref{tab:postprocessing-controls} reports the
+same frozen RDAR prediction files. Each control starts from the same retained
+RDAR prediction arrays and uses the same AP evaluator; no expert stream or
+additional labels are supplied. The proposed strict evaluator reserves the
+same final 50 residual entries used in the main route. The generic controls
+retain their native evaluator definitions, so their geometry and residual-tail
+handling are recorded as separate controls rather than silently presented as
+an exact implementation match. Standard box-voting settings are dataset
+specific but fixed before the three-seed aggregation (IoU/strength are listed
+in the archive); Gaussian Soft-NMS uses the common $\sigma=0.5$, and WBF uses
+the common IoU threshold reported in the table. No parameter is selected from
+the seed being reported. Table~\ref{tab:postprocessing-controls} reports the
 mean AP change over the three seeds of each dataset. Standard box voting is
 helpful on Astyx and V2X-Radar-V but is not uniformly positive; Gaussian
 Soft-NMS and weighted box fusion likewise do not reproduce the four-dataset
 pattern. These controls do not by themselves establish architecture-level
-novelty, but they show that the strict result is not explained by applying an
-arbitrary off-the-shelf suppression or fusion rule.
+novelty; they are bounded frozen-output controls rather than GFL/VarifocalNet
+or architecture-level comparisons.
 
 \begin{table*}[!t]
 \centering
 \reviewcaption{Three-seed controls for generic proposal post-processing. Values
-are mean AP differences relative to RDAR; all methods use the same frozen
-predictions and evaluation protocol. Control parameters were fixed before the
-three-seed aggregation.}
+are mean AP differences relative to RDAR. All methods start from the same
+frozen RDAR prediction files and evaluator; control parameters were fixed
+before the three-seed aggregation, with dataset-specific standard-voting
+settings listed in the archive. Native generic-control handling is not claimed
+to be an exact strict-route implementation match.}
 \label{tab:postprocessing-controls}
 \begingroup
 \color{black}
@@ -1382,8 +1416,8 @@ To test whether voting itself provides a stable cross-seed contribution, we
 also applied the proposed vote-only operation to all 12 frozen RDAR cells,
 without using expert predictions. Table~\ref{tab:vote-only-12cell} reports the
 result. The mean change is $-0.0274$ AP and only 6/12 cells improve. Thus the
-current evidence identifies expert-consistency reweighting, rather than voting
-alone, as the more reproducible source of the strict-route gain; voting is an
+current four-cell diagnostic identifies expert-consistency reweighting, rather
+than voting alone, as the more reproducible source of the observed gain; voting is an
 optional geometric refinement whose benefit is conditional on the gated
 proposal distribution.
 
@@ -1421,7 +1455,7 @@ V2X-Radar-V defines the narrowest margin. Its mean improvement is only 0.4216,
 and two seeds are below 0.22 AP. The strict conclusion is consequently
 sensitive to reproducibility of these small differences. We retain four
 decimal places in the audit trail, use identical evaluation code, and avoid
-rounding the individual cells before testing the gate. In a deployment
+rounding the individual cells before testing the gate. In an operating-point
 decision, the magnitude should be considered together with the direction:
 the route is consistently positive under this protocol, not uniformly large.
 
@@ -2030,7 +2064,7 @@ strict route should be positioned for reliability-sensitive offline evaluation
 or systems whose latency budget can accommodate the refinement. It should not
 be advertised as free or necessarily real time.
 
-The two-route result can be used as a deployment menu. RDAR is the lighter
+The two-route result can be used as an operating menu. RDAR is the lighter
 reference. The high-performance route provides the highest mean AP and better
 ECE at the same parameter scale. The selected expert-gated strict route
 supplies the strongest paired no-regression evidence in the evaluated protocol
@@ -2044,7 +2078,12 @@ simultaneously.
 The study is limited to radar-only car detection and the frozen versions of
 four datasets. Other road-user classes have different dimensions and return
 patterns; the recovery ceiling and voting neighborhood may not transfer
-unchanged. The study also uses a PointPillars-style anchor detector. Testing
+unchanged. The validation sets contain only 80--100 frames (198--3950 car
+instances), and the smallest strict gain is 0.1718 AP. We treat that margin as
+a descriptive finite-protocol result rather than evidence of a practically
+meaningful effect. The absence of scene/vehicle identifiers also prevents a
+scene-level leakage audit; adjacent frame IDs are present across the frozen
+train/validation boundaries. The study also uses a PointPillars-style anchor detector. Testing
 center-based and transformer-based radar detectors would determine whether the
 proposal mechanisms are architecture independent.
 
@@ -2090,8 +2129,8 @@ methodological contribution: auxiliary evidence can recover, reweight, or
 stabilize a detection, but it cannot silently acquire all privileges of the
 primary stream or enlarge the predicted geometry. The complete vote-only audit
 shows that geometric voting alone is not uniformly beneficial, so the evidence
-supports this asymmetric, gate-led interpretation rather than a claim for
-voting as a universally improving operation.
+supports this asymmetric, gate-led interpretation in the four-cell diagnostic,
+rather than a claim for voting as a universally improving operation.
 
 The four-dataset, three-seed evaluation supports two different conclusions.
 Across Astyx, MAN TruckScenes, V2X-Radar-V, and K-Radar, the strict route
