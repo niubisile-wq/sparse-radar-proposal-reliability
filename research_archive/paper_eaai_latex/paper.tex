@@ -1784,6 +1784,15 @@ followed by a Python loop over proposals. Across the profiled subsets, it votes
 number of local neighborhoods explains why a mathematically simple operation
 can dominate runtime.
 
+For deployment planning, we additionally recorded a conservative sum of the
+separately profiled primary-detector, expert-detector, and voting stages:
+187.71 ms for Astyx, 57.95 ms for TruckScenes, 65.61 ms for V2X-Radar-V, and
+68.08 ms for K-Radar. These are upper-bound planning figures rather than
+synchronized end-to-end measurements because the component timings were
+collected in separate profiling contexts. They should not be converted into
+FPS claims; a same-process batch-1 endpoint profile remains necessary before
+real-time deployment conclusions.
+
 An additional GPU scaling profile, with one warm-up frame excluded, measured
 about 1.5--1.6 ms per frame at 50 proposals and 9.7--10.1 ms at 500 proposals,
 with a peak incremental allocation of approximately 6.7 MB. This profile
