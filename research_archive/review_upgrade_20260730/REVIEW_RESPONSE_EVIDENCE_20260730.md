@@ -7,7 +7,7 @@ the manuscript must retain the stated protocol boundaries.
 | Reviewer concern | Evidence added | Manuscript location / artifact | Remaining boundary |
 |---|---|---|---|
 | Generic post-processing may explain the gain | Three-seed fixed controls for standard box voting, Gaussian Soft-NMS, and WBF | `paper.tex`, Table 5; `standard_box_voting_three_seed_20260730.csv`, `soft_nms_three_seed_20260730.csv`, `wbf_three_seed_20260730.csv` | These controls do not replace architecture-level comparisons such as GFL/VarifocalNet. |
-| Expert gate and voting contributions are confounded | Fixed-expert 12-cell factorial: gate-only is positive in 11/12 cells and gate+vote in 10/12, alongside the historical four-cell decomposition | `paper.tex`, new fixed-expert factorial table; `fixed_expert_factorial_12cell_20260730.md` and frozen remote logs | Gate is not positive in every cell and voting is conditional; this strengthens attribution without claiming universal module validity. |
+| Expert gate and voting contributions are confounded | Fixed-expert 12-cell cross-seed factorial: gate-only is positive in 11/12 cells and gate+vote in 10/12, alongside the historical four-cell decomposition | `paper.tex`, fixed-expert factorial table; `fixed_expert_factorial_12cell_20260730.md` and frozen remote logs | This is a deliberately fixed-expert stress test; the selected formal endpoint is seed-matched and is therefore not expected to be numerically identical. |
 | Threshold was selected on the same four-dataset protocol | Leave-one-dataset-out threshold-selection and threshold-transfer screens, including complete seed-level rows | `paper.tex`, Tables 7--8; `lodo_strict_selection_20260730.*`, `lodo_holdout_seed_results_20260730.csv` | Frozen-output audit, not a newly isolated development split; V2X-Radar-V seed 2027 is -0.2945 AP in the unconstrained transfer screen. |
 | Twelve cells are not twelve independent datasets | Dataset-clustered means and exact cluster bootstrap | `paper.tex`, paired-reliability discussion; `clustered_statistics_20260730.md` | Four dataset clusters remain a finite evidence set. |
 | Small positive margins may be noise | Exact four-decimal paired audit and held-out seed-level results | `paper.tex`, Tables 4 and 7 | No claim is made that every positive margin is practically large. |
@@ -66,5 +66,21 @@ without expert predictions. The AP differences were:
 
 The manuscript now makes the gate-led interpretation explicit: voting is a
 conditional geometric refinement, not a uniformly improving component. A
-complete expert-gate-by-vote factorial remains explicitly marked as unavailable
-in the frozen checkpoint set.
+complete expert-gate-by-vote factorial is now available as a fixed-expert
+cross-seed diagnostic. It does not replace the seed-matched formal endpoint;
+the two protocols answer different questions.
+
+## Reconciliation of formal endpoint and fixed-expert diagnostic
+
+The apparent 12/12 versus 10/12 discrepancy is protocol-driven, not an
+unexplained arithmetic conflict. The formal strict endpoint pairs each primary
+seed with the expert checkpoint trained under that same seed and reports the
+threshold-selected route. The new factorial intentionally holds one expert
+checkpoint fixed within each conversion while varying the primary seed. The
+gate and vote equations, proposal limits, residual exclusion, and evaluation
+metric are the same, but the expert score and matched-box stream differs.
+Because AP is computed after global ranking, and voting also changes box
+geometry, changing the expert stream can change AP and even the sign of a
+paired difference. The manuscript now labels the new table a fixed-expert
+cross-seed factorial diagnostic and no longer states that its expert assignment
+matches the formal endpoint.

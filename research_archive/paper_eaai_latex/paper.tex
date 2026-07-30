@@ -13,7 +13,7 @@
 \usepackage{booktabs}
 \usepackage{tabularx}
 \setlength{\emergencystretch}{2em}
-\hypersetup{hidelinks,pdfauthor={Zixuan Liu, Wei Xiong}}
+\hypersetup{hidelinks,hypertexnames=false,pdfauthor={Zixuan Liu, Wei Xiong}}
 
 % Review aid: keep enabled while placing figures and tables; disable for submission.
 \newif\ifhighlightfloats
@@ -86,7 +86,8 @@ dataset mean on all four datasets and 11/12 positive held-out seed
 differences, but includes one $-0.2945$ AP seed-level regression under the
 unconstrained threshold-transfer screen. A complete vote-only audit is not
 uniformly positive (6/12 cells; mean $-0.0274$ AP). In a separate fixed-expert
-12-cell factorial using the formal strict parameters, gate-only improves 11/12
+cross-seed diagnostic using the same strict gate/vote parameters but a
+deliberately frozen expert checkpoint, gate-only improves 11/12
 cells (mean $+1.5825$ AP), while gate-plus-vote improves 10/12 (mean
 $+1.5513$ AP); this supports an expert-consistency-led interpretation, with
 geometry voting treated as conditional evidence rather than a universally
@@ -1083,8 +1084,11 @@ cluster-resampling summaries are likewise descriptive for these finite frozen
 sets.
 
 The formal experiment crosses four datasets with seeds 2026, 2027, and 2028.
-For each dataset, models are trained independently under the same optimization
-schedule and evaluated with the same class mapping and metric implementation.
+For the formal strict endpoint, each primary seed is paired with the expert
+checkpoint trained under that same seed; the fixed-expert diagnostic below
+breaks this pairing intentionally to test cross-seed sensitivity. For each
+dataset, models are trained independently under the same optimization schedule
+and evaluated with the same class mapping and metric implementation.
 We report the mean and sample standard deviation over the three seeds. More
 importantly, the strict route is assessed from paired differences between
 methods trained with the same seed. This pairing reduces some between-seed
@@ -1476,23 +1480,31 @@ exclusion are used in every cell. This table is a complete vote-only audit;
 the fixed-expert gate--vote factorial is reported in the following table.}
 \end{table}
 
-To test component attribution under the actual fixed-expert protocol, we
-repeated the gate and gate-plus-vote operations for all three primary seeds.
-The fixed expert uses seed 2027 for Astyx, TruckScenes, and V2X-Radar-V, and
-seed 2028 for K-Radar, matching the expert assignment used by the strict
-endpoint. Table~\ref{tab:fixed-expert-factorial} reports AP differences from
-the corresponding RDAR output. Gate-only improves 11/12 cells and has a
-positive mean on every frozen conversion. Adding the local vote improves
-10/12 cells; both regressions occur on Astyx. Thus the complete audit supports
-expert-consistency reweighting as the more reproducible component, while also
-providing direct evidence that geometry voting needs a conditional operating
-point.
+To test component attribution under a controlled cross-seed stress test, we
+repeated the gate and gate-plus-vote operations for all three primary seeds
+while holding one expert checkpoint fixed within each conversion. This is
+deliberately different from the formal strict endpoint, which pairs the
+expert checkpoint with the primary training seed and is the protocol used for
+the selected 12/12 result. Specifically, the fixed-expert diagnostic uses
+expert seed 2027 for Astyx, TruckScenes, and V2X-Radar-V, and seed 2028 for
+K-Radar; the formal endpoint uses the corresponding seed-matched expert
+stream. Table~\ref{tab:fixed-expert-factorial} reports AP differences from the
+same RDAR primary outputs. The two protocols therefore need not produce the
+same AP: expert scores and matched boxes change the ranking and, for the vote
+variant, the geometry of the submitted boxes. Gate-only improves 11/12 cells
+and has a positive mean on every frozen conversion under the fixed-expert
+diagnostic. Adding the local vote improves 10/12 cells; both regressions occur
+on Astyx. Thus this audit is a cross-seed stability stress test, not a
+recomputation of the formal endpoint, and supports a gate-led interpretation
+with conditional geometry refinement.
 
 \begin{table}[H]
 \centering
-\reviewcaption{Complete fixed-expert 12-cell factorial audit. Entries are AP
-differences from RDAR for primary seeds 2026/2027/2028. The fixed expert is
-seed 2027 for Astyx, TruckScenes, and V2X-Radar-V, and seed 2028 for K-Radar.}
+\reviewcaption{Fixed-expert cross-seed 12-cell factorial diagnostic. Entries
+are AP differences from RDAR for primary seeds 2026/2027/2028. The expert is
+held fixed at seed 2027 for Astyx, TruckScenes, and V2X-Radar-V, and at seed
+2028 for K-Radar. This diagnostic is not the seed-matched formal strict
+endpoint reported in Table~\ref{tab:main-results}.}
 \label{tab:fixed-expert-factorial}
 \begingroup
 \color{black}

@@ -1,11 +1,16 @@
 # Fixed-expert 12-cell gate/vote factorial audit
 
-This audit uses the formal strict-route parameters and the actual fixed-expert
-protocol: Astyx, TruckScenes, and V2X-Radar-V share the epoch-160 expert
+This audit uses the formal strict-route gate/vote parameters but a deliberately
+fixed-expert cross-seed diagnostic protocol: Astyx, TruckScenes, and
+V2X-Radar-V share the epoch-160 expert
 checkpoint trained with seed 2027; K-Radar uses the available epoch-160 expert
 checkpoint trained with seed 2028. The three primary RDAR streams use seeds
 2026, 2027, and 2028. This separates primary-seed variation from expert
-variation and directly tests the component attribution.
+variation and directly tests component attribution. It is not numerically
+identical to the selected formal strict endpoint: that endpoint uses a
+seed-matched expert checkpoint for each primary seed. The different expert
+stream changes score ranking and, after voting, box geometry, so the two
+protocols are complementary rather than contradictory.
 
 Parameters: expert match IoU 0.30, score mixing alpha 0.30, IoU exponent 0.25,
 unmatched scale 0.50, residual exclusion 50, vote IoU 0.24, vote strength
@@ -24,8 +29,11 @@ protocol, gate-only improves 11/12 primary dataset-seed cells and has positive
 means on all four conversions. Adding the unrestricted local geometry vote to
 the gated lane improves 10/12 cells; the two Astyx regressions show why voting
 must remain conditional rather than being presented as an independently stable
-module. This factorial audit is complementary to the selected strict endpoint;
-it is not used to replace the pre-existing 12/12 selected-route claim.
+module. This factorial audit is complementary to the selected seed-matched
+strict endpoint; it is not used to replace the pre-existing 12/12 selected-
+route claim. The correct interpretation is that gate-only is more reproducible
+than vote-only under the fixed-expert stress test, while geometry refinement
+remains conditional.
 
 The raw prediction outputs and logs are stored on the instance under:
 `results/review_upgrade_20260730/strict_fixed_expert_factorial_12cell/`.
