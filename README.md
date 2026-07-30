@@ -33,8 +33,8 @@ The manuscript’s current data-availability statement is therefore:
 ## Citation
 
 Please cite the accompanying manuscript when using these materials. The
-repository will receive a release and archival DOI after the code and result
-snapshot have been reviewed for completeness.
+repository is released as `v1.0.0` and archived at Zenodo:
+[10.5281/zenodo.21696782](https://doi.org/10.5281/zenodo.21696782).
 
 ## Contact
 
