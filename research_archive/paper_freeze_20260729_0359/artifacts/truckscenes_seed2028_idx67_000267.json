@@ -1,0 +1,60 @@
+{
+  "dataset": "truckscenes",
+  "seed": "2028",
+  "frame_index": 67,
+  "frame_id": "000267",
+  "target_gt_index": 11,
+  "reason": "strict recovers a far target with the largest strict IoU gain in TruckScenes",
+  "point_cloud_path": "/root/autodl-tmp/radar_champion/data/man-truckscenes-mini/unified/training/radar_6455/000267.bin",
+  "num_points_loaded": 464,
+  "num_gt_car": 55,
+  "target_gt_box": [
+    54.919036865234375,
+    11.86451244354248,
+    1.22304368019104,
+    4.447320938110352,
+    1.8353949785232544,
+    1.5090490579605103,
+    -0.1817326843738556
+  ],
+  "target_gt_num_points": -1,
+  "target_range_m": 56.186004638671875,
+  "rdar_summary": {
+    "num_boxes": 550,
+    "target_best_pred_index": 20,
+    "target_best_iou": 0.4940264821052551,
+    "target_best_score": 0.12940792739391327,
+    "top_scores": [
+      0.710212230682373,
+      0.4772709608078003,
+      0.46048104763031006,
+      0.42717525362968445,
+      0.3516061007976532,
+      0.2672654688358307,
+      0.24866127967834473,
+      0.24094876646995544,
+      0.22556090354919434,
+      0.2195674329996109
+    ]
+  },
+  "strict_summary": {
+    "num_boxes": 550,
+    "target_best_pred_index": 20,
+    "target_best_iou": 0.659870982170105,
+    "target_best_score": 0.09598879516124725,
+    "top_scores": [
+      0.6905542016029358,
+      0.40485548973083496,
+      0.3950572609901428,
+      0.3635896146297455,
+      0.2645213007926941,
+      0.223189115524292,
+      0.2043018937110901,
+      0.1810121089220047,
+      0.18076738715171814,
+      0.17605571448802948
+    ]
+  },
+  "npz": "/root/autodl-tmp/radar_champion/results/qualitative_cases/truckscenes_seed2028_idx67_000267.npz",
+  "target_iou_gain": 0.16584450006484985
+}

@@ -1,0 +1,102 @@
+{
+  "m3rob_q15p25_viou0p24_s0p40": {
+    "overall_recall": {
+      "win": 11,
+      "tie": 0,
+      "loss": 1,
+      "missing": 0,
+      "mean_delta": 0.0045,
+      "decision": "internal only"
+    },
+    "range_bins": {
+      "win": 26,
+      "tie": 13,
+      "loss": 9,
+      "missing": 0,
+      "mean_delta": 0.0038,
+      "decision": "internal only"
+    },
+    "sparsity_bins": {
+      "win": 18,
+      "tie": 19,
+      "loss": 8,
+      "missing": 3,
+      "mean_delta": 0.0084,
+      "decision": "internal only"
+    },
+    "ece_hit": {
+      "win": 0,
+      "tie": 0,
+      "loss": 12,
+      "missing": 0,
+      "mean_delta": -0.027,
+      "decision": "selective/internal"
+    },
+    "top10_iou": {
+      "win": 9,
+      "tie": 0,
+      "loss": 3,
+      "missing": 0,
+      "mean_delta": 0.0124,
+      "decision": "selective/internal"
+    },
+    "score_iou_corr": {
+      "win": 7,
+      "tie": 0,
+      "loss": 5,
+      "missing": 0,
+      "mean_delta": 0.0102,
+      "decision": "selective/internal"
+    }
+  },
+  "q55rpa50_kprior": {
+    "overall_recall": {
+      "win": 4,
+      "tie": 0,
+      "loss": 8,
+      "missing": 0,
+      "mean_delta": -0.001,
+      "decision": "internal only"
+    },
+    "range_bins": {
+      "win": 17,
+      "tie": 10,
+      "loss": 21,
+      "missing": 0,
+      "mean_delta": -0.0031,
+      "decision": "internal only"
+    },
+    "sparsity_bins": {
+      "win": 19,
+      "tie": 9,
+      "loss": 17,
+      "missing": 3,
+      "mean_delta": 0.0106,
+      "decision": "internal only"
+    },
+    "ece_hit": {
+      "win": 12,
+      "tie": 0,
+      "loss": 0,
+      "missing": 0,
+      "mean_delta": 0.0504,
+      "decision": "keep"
+    },
+    "top10_iou": {
+      "win": 6,
+      "tie": 0,
+      "loss": 6,
+      "missing": 0,
+      "mean_delta": 0.0052,
+      "decision": "selective/internal"
+    },
+    "score_iou_corr": {
+      "win": 8,
+      "tie": 0,
+      "loss": 4,
+      "missing": 0,
+      "mean_delta": 0.0155,
+      "decision": "selective/internal"
+    }
+  }
+}

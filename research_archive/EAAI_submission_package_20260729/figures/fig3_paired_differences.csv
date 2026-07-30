@@ -1,0 +1,13 @@
+dataset,seed,strict_delta,high_performance_delta
+Astyx,2026,0.8222,3.1916
+Astyx,2027,0.6202,5.7613
+Astyx,2028,1.1228,3.4833
+TruckScenes,2026,0.4765,0.0959
+TruckScenes,2027,0.8135,-1.2770
+TruckScenes,2028,1.4721,2.4987
+V2X-Radar-V,2026,0.2167,3.8141
+V2X-Radar-V,2027,0.1718,1.7578
+V2X-Radar-V,2028,0.8763,2.4554
+K-Radar,2026,2.6060,7.4932
+K-Radar,2027,1.0864,8.2514
+K-Radar,2028,1.3861,7.6689

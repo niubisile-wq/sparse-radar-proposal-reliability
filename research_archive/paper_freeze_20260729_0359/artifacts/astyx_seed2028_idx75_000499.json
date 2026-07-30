@@ -1,0 +1,60 @@
+{
+  "dataset": "astyx",
+  "seed": "2028",
+  "frame_index": 75,
+  "frame_id": "000499",
+  "target_gt_index": 2,
+  "reason": "strict recovers a near-range target; no strict FP increase in this dataset gate",
+  "point_cloud_path": null,
+  "num_points_loaded": 0,
+  "num_gt_car": 5,
+  "target_gt_box": [
+    15.172895431518555,
+    7.727627277374268,
+    -0.6103700399398804,
+    1.7649999856948853,
+    4.76408576965332,
+    1.5089999437332153,
+    -1.4589738845825195
+  ],
+  "target_gt_num_points": 14,
+  "target_range_m": 17.02741813659668,
+  "rdar_summary": {
+    "num_boxes": 550,
+    "target_best_pred_index": 432,
+    "target_best_iou": 0.4203394651412964,
+    "target_best_score": 0.025229083374142647,
+    "top_scores": [
+      0.49156904220581055,
+      0.422421395778656,
+      0.415826678276062,
+      0.36288124322891235,
+      0.31815269589424133,
+      0.29391276836395264,
+      0.2504487633705139,
+      0.22961144149303436,
+      0.21416543424129486,
+      0.18740543723106384
+    ]
+  },
+  "strict_summary": {
+    "num_boxes": 550,
+    "target_best_pred_index": 10,
+    "target_best_iou": 0.5235143899917603,
+    "target_best_score": 0.16967865824699402,
+    "top_scores": [
+      0.40397730469703674,
+      0.3757201135158539,
+      0.35808947682380676,
+      0.2965400218963623,
+      0.25947093963623047,
+      0.2510524392127991,
+      0.24854063987731934,
+      0.2218749076128006,
+      0.17113162577152252,
+      0.16967865824699402
+    ]
+  },
+  "npz": "/root/autodl-tmp/radar_champion/results/qualitative_cases/astyx_seed2028_idx75_000499.npz",
+  "target_iou_gain": 0.10317492485046387
+}

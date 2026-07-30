@@ -1,0 +1,86 @@
+{
+  "variant": "pvd_rgpc",
+  "mode": "screen",
+  "reference": "rdar",
+  "minimum_gain_ap": 1.0,
+  "datasets": {
+    "astyx": {
+      "ap": {
+        "2028": 34.4606
+      },
+      "reference_ap": {
+        "2028": 34.354
+      },
+      "delta_ap": {
+        "2028": 0.10660000000000025
+      },
+      "logs": {
+        "2028": "/root/autodl-tmp/radar_champion/logs/fair_ablation/eval_rdar_pvd_rgpc_astyx_seed2028_gpu0.log"
+      },
+      "reference_logs": {
+        "2028": "fixed RDAR reference"
+      },
+      "complete": true,
+      "passed": false
+    },
+    "truckscenes": {
+      "ap": {
+        "2028": 12.6728
+      },
+      "reference_ap": {
+        "2028": 15.3041
+      },
+      "delta_ap": {
+        "2028": -2.6312999999999995
+      },
+      "logs": {
+        "2028": "/root/autodl-tmp/radar_champion/logs/fair_ablation/eval_rdar_pvd_rgpc_truckscenes_seed2028_gpu1.log"
+      },
+      "reference_logs": {
+        "2028": "fixed RDAR reference"
+      },
+      "complete": true,
+      "passed": false
+    },
+    "v2xradarv": {
+      "ap": {
+        "2028": 46.3428
+      },
+      "reference_ap": {
+        "2028": 41.3385
+      },
+      "delta_ap": {
+        "2028": 5.0042999999999935
+      },
+      "logs": {
+        "2028": "/root/autodl-tmp/radar_champion/logs/fair_ablation/eval_rdar_pvd_rgpc_v2xradarv_seed2028_gpu2.log"
+      },
+      "reference_logs": {
+        "2028": "fixed RDAR reference"
+      },
+      "complete": true,
+      "passed": true
+    },
+    "kradar": {
+      "ap": {
+        "2028": 53.4215
+      },
+      "reference_ap": {
+        "2028": 52.0271
+      },
+      "delta_ap": {
+        "2028": 1.3944000000000045
+      },
+      "logs": {
+        "2028": "/root/autodl-tmp/radar_champion/logs/fair_ablation/eval_rdar_pvd_rgpc_kradar_seed2028_gpu2.log"
+      },
+      "reference_logs": {
+        "2028": "fixed RDAR reference"
+      },
+      "complete": true,
+      "passed": true
+    }
+  },
+  "complete": true,
+  "passed": false
+}

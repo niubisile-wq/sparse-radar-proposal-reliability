@@ -1,0 +1,24 @@
+freeze_id: "20260728_230418"
+datasets:
+  - astyx
+  - truckscenes
+  - v2xradarv
+  - kradar
+seeds: [2026, 2027, 2028]
+metric: "AP_R40@3D IoU 0.50"
+registered_methods:
+  rdar:
+    role: internal baseline
+    status: closed
+    evidence: results/external_baseline_comparison.csv
+  qflr55:
+    role: quality-alignment route
+    status: closed
+    evidence: results/external_baseline_comparison.csv
+  q55rpa50_kprior:
+    role: high-performance route
+    status: closed
+    evidence: results/external_baseline_comparison.csv
+notes:
+  - "All registered methods are evaluated under the same four-dataset / three-seed protocol."
+  - "The external comparison is paper-facing; internal screening routes are tracked elsewhere."

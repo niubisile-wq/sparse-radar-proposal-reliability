@@ -1,0 +1,162 @@
+{
+  "values": {
+    "RadarPillar": {
+      "Astyx": 18.8006,
+      "TruckScenes-mini": 5.56,
+      "V2X-Radar-V-400": 30.0646,
+      "K-Radar-400": 32.9914
+    },
+    "PointPillars": {
+      "Astyx": 17.1414,
+      "TruckScenes-mini": 11.9058,
+      "V2X-Radar-V-400": 32.959,
+      "K-Radar-400": 31.916
+    },
+    "MAFF-Net": {
+      "Astyx": 14.8022,
+      "TruckScenes-mini": 11.3625,
+      "V2X-Radar-V-400": 23.2357,
+      "K-Radar-400": 2.0081
+    },
+    "PV-RCNN": {
+      "Astyx": 14.3216,
+      "TruckScenes-mini": 6.0524,
+      "V2X-Radar-V-400": 13.3476,
+      "K-Radar-400": 2.942
+    },
+    "Voxel R-CNN": {
+      "Astyx": 13.7367,
+      "TruckScenes-mini": 2.1706,
+      "V2X-Radar-V-400": 9.1176,
+      "K-Radar-400": 21.4797
+    },
+    "VoxelNeXt": {
+      "Astyx": 12.4657,
+      "TruckScenes-mini": 2.7029,
+      "V2X-Radar-V-400": 15.1061,
+      "K-Radar-400": 20.5481
+    },
+    "SECOND": {
+      "Astyx": 10.204,
+      "TruckScenes-mini": 2.6218,
+      "V2X-Radar-V-400": 9.9993,
+      "K-Radar-400": 15.2708
+    },
+    "CenterPoint": {
+      "Astyx": 9.4416,
+      "TruckScenes-mini": 2.6889,
+      "V2X-Radar-V-400": 14.577,
+      "K-Radar-400": 11.9113
+    },
+    "PillarNet": {
+      "Astyx": 7.3324,
+      "TruckScenes-mini": 2.871,
+      "V2X-Radar-V-400": 9.7977,
+      "K-Radar-400": 9.0488
+    },
+    "PV-RCNN++": {
+      "Astyx": 6.0159,
+      "TruckScenes-mini": 3.6516,
+      "V2X-Radar-V-400": 11.203,
+      "K-Radar-400": 15.3282
+    },
+    "Part-A²": {
+      "Astyx": 3.5379,
+      "TruckScenes-mini": 2.2953,
+      "V2X-Radar-V-400": 10.8219,
+      "K-Radar-400": 11.877
+    },
+    "PointRCNN": {
+      "Astyx": 0.0,
+      "TruckScenes-mini": 0.0,
+      "V2X-Radar-V-400": 0.0,
+      "K-Radar-400": 0.0
+    },
+    "TransFusion": {
+      "Astyx": 0.0,
+      "TruckScenes-mini": 0.0,
+      "V2X-Radar-V-400": 0.0,
+      "K-Radar-400": 0.0
+    }
+  },
+  "source_logs": {
+    "RadarPillar": {
+      "Astyx": "eval_all_radarpillar_radar_ap.log",
+      "TruckScenes-mini": "truckscenes_formal_radarpillar_seed2026_gpu3.log",
+      "V2X-Radar-V-400": "v2xradarv_formal_radarpillar_seed2026_gpu3.log",
+      "K-Radar-400": "kradar_formal_radarpillar_seed2026_gpu3.log"
+    },
+    "PointPillars": {
+      "Astyx": "tournament_formal_pointpillars_gpu0.log",
+      "TruckScenes-mini": "truckscenes_formal_pointpillars_seed2026_gpu3.log",
+      "V2X-Radar-V-400": "v2xradarv_formal_pointpillars_seed2026_gpu0.log",
+      "K-Radar-400": "kradar_formal_pointpillars_seed2026_gpu3.log"
+    },
+    "MAFF-Net": {
+      "Astyx": "eval_maff_partition_gpu2.log",
+      "TruckScenes-mini": "truckscenes_formal_maffnet_seed2026_gpu1.log",
+      "V2X-Radar-V-400": "v2xradarv_formal_maffnet_seed2026_gpu0.log",
+      "K-Radar-400": "kradar_formal_maffnet_seed2026_gpu0.log"
+    },
+    "PV-RCNN": {
+      "Astyx": "tournament_formal_pvrcnn_gpu3.log",
+      "TruckScenes-mini": "truckscenes_formal_pv_rcnn_seed2026_gpu1.log",
+      "V2X-Radar-V-400": "v2xradarv_formal_pv_rcnn_seed2026_gpu1.log",
+      "K-Radar-400": "kradar_formal_pv_rcnn_seed2026_gpu1.log"
+    },
+    "Voxel R-CNN": {
+      "Astyx": "tournament_formal_voxelrcnn_gpu2.log",
+      "TruckScenes-mini": "truckscenes_formal_voxelrcnn_seed2026_gpu1.log",
+      "V2X-Radar-V-400": "v2xradarv_formal_voxel_rcnn_seed2026_gpu1.log",
+      "K-Radar-400": "kradar_formal_voxel_rcnn_seed2026_gpu3.log"
+    },
+    "VoxelNeXt": {
+      "Astyx": "tournament_formal_voxelnext_gpu3.log",
+      "TruckScenes-mini": "truckscenes_formal_voxelnext_seed2026_gpu2.log",
+      "V2X-Radar-V-400": "v2xradarv_formal_voxelnext_seed2026_gpu0.log",
+      "K-Radar-400": "kradar_formal_voxelnext_seed2026_gpu0.log"
+    },
+    "SECOND": {
+      "Astyx": "tournament_formal_second_gpu1.log",
+      "TruckScenes-mini": "truckscenes_formal_second_seed2026_gpu3.log",
+      "V2X-Radar-V-400": "v2xradarv_formal_second_seed2026_gpu0.log",
+      "K-Radar-400": "kradar_formal_second_seed2026_gpu3.log"
+    },
+    "CenterPoint": {
+      "Astyx": "tournament_formal_centerpoint_gpu1.log",
+      "TruckScenes-mini": "truckscenes_formal_centerpoint_seed2026_gpu2.log",
+      "V2X-Radar-V-400": "v2xradarv_formal_centerpoint_seed2026_gpu0.log",
+      "K-Radar-400": "kradar_formal_centerpoint_seed2026_gpu3.log"
+    },
+    "PillarNet": {
+      "Astyx": "tournament_formal_pillarnet_gpu1.log",
+      "TruckScenes-mini": "truckscenes_formal_pillarnet_seed2026_gpu3.log",
+      "V2X-Radar-V-400": "v2xradarv_formal_pillarnet_seed2026_gpu3.log",
+      "K-Radar-400": "kradar_formal_pillarnet_seed2026_gpu3.log"
+    },
+    "PV-RCNN++": {
+      "Astyx": "tournament_formal_pvrcnnpp_gpu0.log",
+      "TruckScenes-mini": "truckscenes_formal_pvrcnnpp_seed2026_gpu0.log",
+      "V2X-Radar-V-400": "v2xradarv_formal_pvrcnnpp_seed2026_gpu2.log",
+      "K-Radar-400": "kradar_formal_pvrcnnpp_seed2026_gpu2.log"
+    },
+    "Part-A²": {
+      "Astyx": "tournament_formal_parta2_epoch67_gpu3.log",
+      "TruckScenes-mini": "truckscenes_formal_parta2_seed2026_gpu2.log",
+      "V2X-Radar-V-400": "v2xradarv_formal_parta2_seed2026_gpu2.log",
+      "K-Radar-400": "kradar_formal_parta2_seed2026_gpu2.log"
+    },
+    "PointRCNN": {
+      "Astyx": "tournament_formal_pointrcnn_gpu2.log",
+      "TruckScenes-mini": "truckscenes_formal_pointrcnn_seed2026_gpu1.log",
+      "V2X-Radar-V-400": "v2xradarv_formal_pointrcnn_seed2026_gpu1.log",
+      "K-Radar-400": "kradar_formal_pointrcnn_seed2026_gpu3.log"
+    },
+    "TransFusion": {
+      "Astyx": "tournament_formal_transfusion_gpu2.log",
+      "TruckScenes-mini": "truckscenes_formal_transfusion_seed2026_gpu2.log",
+      "V2X-Radar-V-400": "v2xradarv_formal_transfusion_seed2026_gpu3.log",
+      "K-Radar-400": "kradar_formal_transfusion_seed2026_gpu3.log"
+    }
+  }
+}

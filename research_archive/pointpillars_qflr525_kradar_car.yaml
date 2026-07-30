@@ -1,0 +1,10 @@
+_BASE_CONFIG_: /root/autodl-tmp/radar_champion/repos/OpenPCDet_current/tools/cfgs/astyx_models/pointpillars_taac_kradar_car.yaml
+DATA_CONFIG:
+    _BASE_CONFIG_: /root/autodl-tmp/radar_champion/repos/RadarPillar/tools/cfgs/dataset_configs/champion_kradar_car.yaml
+MODEL:
+    DENSE_HEAD:
+        NAME: AnchorHeadQualityFocal
+        QUALITY_FOCAL_BETA: 2.0
+        QUALITY_IOU_POWER: 1.0
+        QUALITY_TARGET_FLOOR: 0.0
+        QUALITY_OBJECTNESS_RESIDUAL: 0.525

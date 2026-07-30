@@ -1,0 +1,4 @@
+Proposal reliability is decomposed into availability, quality, and consistency.
+Asymmetric refinement limits privileges assigned to auxiliary evidence.
+The strict route improves RDAR in all 12 paired dataset-seed comparisons.
+Maximum macro AP and no-regression require different operating routes.

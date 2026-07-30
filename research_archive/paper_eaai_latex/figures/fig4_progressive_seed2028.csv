@@ -1,0 +1,6 @@
+stage,stage_short,Astyx,TruckScenes,V2X-Radar-V,K-Radar,Macro,stepwise_macro_delta
+PointPillars screen,PointPillars,30.5009,15.1291,40.0670,50.2659,33.9907,
+M1 candidate-preserving NMS,+M1,34.3392,15.2784,41.3191,52.0193,35.7390,1.7483
+M2 RDAR recovery,+M2,34.3540,15.3041,41.3385,52.0271,35.7559,0.0169
+M3 quality alignment,+M3,37.0318,17.4530,42.5979,59.4687,39.1379,3.3820
+High-performance settings,+HP settings,37.8373,17.8028,43.7939,59.6960,39.7825,0.6446

@@ -1,0 +1,294 @@
+{
+  "rows": {
+    "m3rob_q15p25_viou0p22_s0p35": {
+      "vote_iou": "0.22",
+      "strength": "0.35",
+      "dataset_means": {
+        "astyx": 33.571133333333336,
+        "truckscenes": 17.014233333333333,
+        "v2xradarv": 42.19820000000001,
+        "kradar": 52.01193333333333
+      },
+      "macro_mean": 36.198875,
+      "min_delta": -0.07050000000000267,
+      "mean_delta": 0.843641666666667,
+      "positive_count": 10,
+      "negative_count": 2,
+      "tie_count": 0,
+      "all_positive": false
+    },
+    "m3rob_q15p25_viou0p22_s0p40": {
+      "vote_iou": "0.22",
+      "strength": "0.40",
+      "dataset_means": {
+        "astyx": 33.33733333333333,
+        "truckscenes": 16.8935,
+        "v2xradarv": 42.1148,
+        "kradar": 52.19983333333332
+      },
+      "macro_mean": 36.13636666666667,
+      "min_delta": 0.025200000000001666,
+      "mean_delta": 0.781133333333334,
+      "positive_count": 12,
+      "negative_count": 0,
+      "tie_count": 0,
+      "all_positive": true
+    },
+    "m3rob_q15p25_viou0p22_s0p45": {
+      "vote_iou": "0.22",
+      "strength": "0.45",
+      "dataset_means": {
+        "astyx": 33.2532,
+        "truckscenes": 16.695166666666665,
+        "v2xradarv": 42.202,
+        "kradar": 51.89286666666667
+      },
+      "macro_mean": 36.01080833333333,
+      "min_delta": -0.0519999999999996,
+      "mean_delta": 0.6555750000000008,
+      "positive_count": 11,
+      "negative_count": 1,
+      "tie_count": 0,
+      "all_positive": false
+    },
+    "m3rob_q15p25_viou0p22_s0p50": {
+      "vote_iou": "0.22",
+      "strength": "0.50",
+      "dataset_means": {
+        "astyx": 32.72226666666666,
+        "truckscenes": 16.340166666666665,
+        "v2xradarv": 42.1029,
+        "kradar": 51.89343333333334
+      },
+      "macro_mean": 35.76469166666667,
+      "min_delta": -0.4350999999999985,
+      "mean_delta": 0.4094583333333343,
+      "positive_count": 7,
+      "negative_count": 5,
+      "tie_count": 0,
+      "all_positive": false
+    },
+    "m3rob_q15p25_viou0p24_s0p35": {
+      "vote_iou": "0.24",
+      "strength": "0.35",
+      "dataset_means": {
+        "astyx": 33.821799999999996,
+        "truckscenes": 17.421866666666666,
+        "v2xradarv": 41.942033333333335,
+        "kradar": 52.02213333333333
+      },
+      "macro_mean": 36.30195833333333,
+      "min_delta": -0.2944999999999993,
+      "mean_delta": 0.9467250000000007,
+      "positive_count": 11,
+      "negative_count": 1,
+      "tie_count": 0,
+      "all_positive": false
+    },
+    "m3rob_q15p25_viou0p24_s0p50": {
+      "vote_iou": "0.24",
+      "strength": "0.50",
+      "dataset_means": {
+        "astyx": 33.364666666666665,
+        "truckscenes": 16.948333333333334,
+        "v2xradarv": 41.9767,
+        "kradar": 51.90193333333334
+      },
+      "macro_mean": 36.04790833333334,
+      "min_delta": 0.13539999999999708,
+      "mean_delta": 0.6926750000000003,
+      "positive_count": 12,
+      "negative_count": 0,
+      "tie_count": 0,
+      "all_positive": true
+    },
+    "m3rob_q15p25_viou0p25_s0p35": {
+      "vote_iou": "0.25",
+      "strength": "0.35",
+      "dataset_means": {
+        "astyx": 33.83089999999999,
+        "truckscenes": 17.282833333333333,
+        "v2xradarv": 42.04286666666666,
+        "kradar": 52.02216666666667
+      },
+      "macro_mean": 36.294691666666665,
+      "min_delta": -0.43299999999999983,
+      "mean_delta": 0.9394583333333344,
+      "positive_count": 11,
+      "negative_count": 1,
+      "tie_count": 0,
+      "all_positive": false
+    },
+    "m3rob_q15p25_viou0p25_s0p50": {
+      "vote_iou": "0.25",
+      "strength": "0.50",
+      "dataset_means": {
+        "astyx": 33.715799999999994,
+        "truckscenes": 17.030933333333333,
+        "v2xradarv": 41.82593333333333,
+        "kradar": 51.87453333333334
+      },
+      "macro_mean": 36.1118,
+      "min_delta": -0.18889999999999674,
+      "mean_delta": 0.7565666666666676,
+      "positive_count": 11,
+      "negative_count": 1,
+      "tie_count": 0,
+      "all_positive": false
+    },
+    "m3rob_q15p25_viou0p26_s0p35": {
+      "vote_iou": "0.26",
+      "strength": "0.35",
+      "dataset_means": {
+        "astyx": 33.8034,
+        "truckscenes": 17.214333333333332,
+        "v2xradarv": 41.793366666666664,
+        "kradar": 51.88673333333333
+      },
+      "macro_mean": 36.174458333333334,
+      "min_delta": -0.29350000000000165,
+      "mean_delta": 0.8192249999999994,
+      "positive_count": 10,
+      "negative_count": 2,
+      "tie_count": 0,
+      "all_positive": false
+    },
+    "m3rob_q15p25_viou0p26_s0p40": {
+      "vote_iou": "0.26",
+      "strength": "0.40",
+      "dataset_means": {
+        "astyx": 33.759233333333334,
+        "truckscenes": 17.24506666666667,
+        "v2xradarv": 41.91343333333333,
+        "kradar": 51.87103333333334
+      },
+      "macro_mean": 36.19719166666667,
+      "min_delta": -0.14939999999999998,
+      "mean_delta": 0.8419583333333346,
+      "positive_count": 10,
+      "negative_count": 2,
+      "tie_count": 0,
+      "all_positive": false
+    },
+    "m3rob_q15p25_viou0p26_s0p45": {
+      "vote_iou": "0.26",
+      "strength": "0.45",
+      "dataset_means": {
+        "astyx": 33.8578,
+        "truckscenes": 17.105,
+        "v2xradarv": 41.84916666666667,
+        "kradar": 51.842533333333336
+      },
+      "macro_mean": 36.163625,
+      "min_delta": -0.4046999999999983,
+      "mean_delta": 0.8083916666666671,
+      "positive_count": 11,
+      "negative_count": 1,
+      "tie_count": 0,
+      "all_positive": false
+    },
+    "m3rob_q15p25_viou0p26_s0p50": {
+      "vote_iou": "0.26",
+      "strength": "0.50",
+      "dataset_means": {
+        "astyx": 33.998533333333334,
+        "truckscenes": 17.038300000000003,
+        "v2xradarv": 41.576233333333334,
+        "kradar": 51.7708
+      },
+      "macro_mean": 36.09596666666667,
+      "min_delta": -0.44180000000000064,
+      "mean_delta": 0.7407333333333345,
+      "positive_count": 11,
+      "negative_count": 1,
+      "tie_count": 0,
+      "all_positive": false
+    },
+    "m3rob_q15p25_viou0p28_s0p35": {
+      "vote_iou": "0.28",
+      "strength": "0.35",
+      "dataset_means": {
+        "astyx": 33.767133333333334,
+        "truckscenes": 17.3329,
+        "v2xradarv": 41.75573333333333,
+        "kradar": 51.94853333333333
+      },
+      "macro_mean": 36.201074999999996,
+      "min_delta": -0.9078999999999979,
+      "mean_delta": 0.8458416666666677,
+      "positive_count": 11,
+      "negative_count": 1,
+      "tie_count": 0,
+      "all_positive": false
+    },
+    "m3rob_q15p25_viou0p28_s0p40": {
+      "vote_iou": "0.28",
+      "strength": "0.40",
+      "dataset_means": {
+        "astyx": 33.7172,
+        "truckscenes": 17.3932,
+        "v2xradarv": 41.7874,
+        "kradar": 51.92986666666667
+      },
+      "macro_mean": 36.206916666666665,
+      "min_delta": -0.8950999999999993,
+      "mean_delta": 0.8516833333333343,
+      "positive_count": 11,
+      "negative_count": 1,
+      "tie_count": 0,
+      "all_positive": false
+    },
+    "m3rob_q15p25_viou0p28_s0p45": {
+      "vote_iou": "0.28",
+      "strength": "0.45",
+      "dataset_means": {
+        "astyx": 33.738,
+        "truckscenes": 17.3049,
+        "v2xradarv": 41.639,
+        "kradar": 51.89003333333333
+      },
+      "macro_mean": 36.14298333333333,
+      "min_delta": -0.5995999999999952,
+      "mean_delta": 0.7877500000000005,
+      "positive_count": 11,
+      "negative_count": 1,
+      "tie_count": 0,
+      "all_positive": false
+    },
+    "m3rob_q15p25_viou0p28_s0p50": {
+      "vote_iou": "0.28",
+      "strength": "0.50",
+      "dataset_means": {
+        "astyx": 33.7234,
+        "truckscenes": 17.260366666666666,
+        "v2xradarv": 41.53776666666667,
+        "kradar": 51.81043333333333
+      },
+      "macro_mean": 36.082991666666665,
+      "min_delta": -0.6028999999999982,
+      "mean_delta": 0.7277583333333345,
+      "positive_count": 10,
+      "negative_count": 2,
+      "tie_count": 0,
+      "all_positive": false
+    }
+  },
+  "ranked_tags": [
+    "m3rob_q15p25_viou0p22_s0p40",
+    "m3rob_q15p25_viou0p24_s0p50",
+    "m3rob_q15p25_viou0p24_s0p35",
+    "m3rob_q15p25_viou0p25_s0p35",
+    "m3rob_q15p25_viou0p28_s0p40",
+    "m3rob_q15p25_viou0p28_s0p35",
+    "m3rob_q15p25_viou0p22_s0p35",
+    "m3rob_q15p25_viou0p26_s0p40",
+    "m3rob_q15p25_viou0p26_s0p35",
+    "m3rob_q15p25_viou0p26_s0p45",
+    "m3rob_q15p25_viou0p28_s0p45",
+    "m3rob_q15p25_viou0p25_s0p50",
+    "m3rob_q15p25_viou0p26_s0p50",
+    "m3rob_q15p25_viou0p28_s0p50",
+    "m3rob_q15p25_viou0p22_s0p45",
+    "m3rob_q15p25_viou0p22_s0p50"
+  ]
+}

@@ -1,0 +1,60 @@
+{
+  "dataset": "v2xradarv",
+  "seed": "2028",
+  "frame_index": 41,
+  "frame_id": "000361",
+  "target_gt_index": 2,
+  "reason": "strict recovers a mid-range target; same frame also has another recovered target",
+  "point_cloud_path": "/root/autodl-tmp/radar_champion/data/v2x-radar-v-400/unified/training/radar_6455/000361.bin",
+  "num_points_loaded": 5872,
+  "num_gt_car": 8,
+  "target_gt_box": [
+    19.873218536376953,
+    -6.709967136383057,
+    -1.085318922996521,
+    4.646026611328125,
+    1.7000000476837158,
+    1.4205843210220337,
+    -2.7296183109283447
+  ],
+  "target_gt_num_points": -1,
+  "target_range_m": 20.975425720214844,
+  "rdar_summary": {
+    "num_boxes": 550,
+    "target_best_pred_index": 87,
+    "target_best_iou": 0.4970345199108124,
+    "target_best_score": 0.05916767194867134,
+    "top_scores": [
+      0.7426371574401855,
+      0.6839361190795898,
+      0.551288902759552,
+      0.5458084940910339,
+      0.4653983414173126,
+      0.42501118779182434,
+      0.3991314470767975,
+      0.25745195150375366,
+      0.23671989142894745,
+      0.19878152012825012
+    ]
+  },
+  "strict_summary": {
+    "num_boxes": 550,
+    "target_best_pred_index": 87,
+    "target_best_iou": 0.5419634580612183,
+    "target_best_score": 0.05594953894615173,
+    "top_scores": [
+      0.7262897491455078,
+      0.6486838459968567,
+      0.53099125623703,
+      0.5214982032775879,
+      0.45232975482940674,
+      0.3849969804286957,
+      0.3763726055622101,
+      0.1990351676940918,
+      0.18520472943782806,
+      0.14600619673728943
+    ]
+  },
+  "npz": "/root/autodl-tmp/radar_champion/results/qualitative_cases/v2xradarv_seed2028_idx41_000361.npz",
+  "target_iou_gain": 0.044928938150405884
+}

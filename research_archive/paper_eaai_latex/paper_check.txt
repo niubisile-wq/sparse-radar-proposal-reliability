@@ -1,0 +1,862 @@
+Highlights
+Proposal Preservation, Quality Alignment, and Robust Voting for Sparse Radar 3D Object Detection
+Author Name
+
+   • Four radar datasets and three seeds are used to test cross-
+     dataset reliability.
+   • The strict route improves RDAR on all 12 seed-dataset
+     pairs.
+
+   • The high-performance route gives the strongest macro
+     gain but is not strict no-regression.
+   • Calibration, robustness, and qualitative case analysis are
+     reported as separate evidence tracks.
+Proposal Preservation, Quality Alignment, and Robust Voting for Sparse Radar 3D Object
+                                      Detection
+
+                                                               Author Namea,∗
+                                                      a Affiliation to be filled by the authors
+
+
+
+
+Abstract
+Radar-only 3D object detection is attractive for all-weather perception, but its sparse and sensor-dependent measurements make
+proposal selection unusually brittle. Useful boxes can be removed by aggressive filtering, classification confidence can disagree
+with localization quality, and an average improvement can conceal regressions on individual datasets or random seeds. We present a
+reliability-oriented proposal refinement framework that preserves borderline candidates, recovers complementary residual proposals,
+aligns confidence with three-dimensional localization quality, and refines locally consistent boxes through conservative proposal
+voting. The method is evaluated on Astyx, MAN TruckScenes, V2X-Radar-V, and K-Radar using three training seeds and APR40 at
+a 3D intersection-over-union threshold of 0.50. The strict voting route improves the RDAR baseline in all 12 paired dataset-seed
+comparisons, with a mean gain of 0.9726 AP and a bootstrap 95% confidence interval of [0.6468, 1.3536]. A separate high-
+performance route raises macro AP from 35.3552 to 39.1214, but is not assigned the no-regression claim because one TruckScenes
+seed decreases. A seed-2028 progressive study, calibration diagnostics, point-dropout stress tests, threshold sensitivity, runtime
+profiling, and qualitative cases connect the aggregate results to specific proposal mechanisms. The analysis shows that strict reliability
+and maximum average accuracy are distinct operating objectives: proposal voting provides consistent paired gains at measurable
+post-processing cost, whereas quality alignment provides larger average gains and better calibration without uniformly improving
+every diagnostic condition.
+Keywords: Sparse radar 3D object detection, proposal preservation, proposal voting, calibration, robustness
+
+
+1. Introduction                                                              mine whether the limited evidence supporting an object survives
+                                                                             to the final ranked list.
+    Automotive perception must continue to function when il-                     Efficient lidar-style detectors provide a practical starting
+lumination, weather, or viewing geometry weakens the visual                  point for this problem. PointPillars converts points into a bird’s-
+evidence available to a camera. Millimeter-wave radar provides               eye-view (BEV) pseudo-image and applies a two-dimensional
+direct range and radial-velocity measurements and remains oper-              convolutional backbone [5]. Its regular representation, modest
+ational in several conditions that are difficult for optical sensors.        parameter count, and mature implementation make controlled
+Recent 4D radar datasets have consequently expanded radar                    multi-dataset experiments feasible. Yet a conventional single-
+perception from small proof-of-concept collections to diverse                stage head is commonly optimized with a binary classification
+driving and cooperative settings [26, 30]. This progress makes               target while evaluation rewards both correct class assignment
+radar-only 3D detection a useful research problem in its own                 and accurate 3D localization. Two positive anchors can therefore
+right rather than only an auxiliary branch of camera–radar fu-               receive similar objectness supervision even when one produces a
+sion.                                                                        much better box. Once these predictions reach NMS, the higher
+    Radar point clouds, however, do not behave like dense lidar              classification score can cause the inferior box to suppress the
+scans. A vehicle may be represented by few spatially irregular               better localized alternative.
+returns, and the number, amplitude, and Doppler distribution of                  The suppression stage introduces a second asymmetry. Stan-
+those returns vary with aspect, distance, occlusion, sensor config-          dard hard NMS makes an irreversible decision: a proposal that is
+uration, and preprocessing. These differences are visible across             removed cannot benefit from later evidence. Soft-NMS showed
+Astyx, MAN TruckScenes, V2X-Radar-V, and K-Radar, which                      in two-dimensional detection that preserving or decaying over-
+cover distinct platforms and acquisition regimes. A detector                 lapping candidates can be preferable to deleting them immedi-
+trained on such measurements must infer a full 3D extent from                ately [19]. The issue is amplified for sparse radar, where several
+incomplete evidence. The difficulty is therefore not confined                imperfect boxes may each encode part of the same weak object.
+to feature extraction. Small changes in assignment, confidence,              Conversely, simply lowering the score threshold and retaining
+score filtering, or non-maximum suppression (NMS) can deter-                 every box is not a complete solution. A larger proposal pool
+                                                                             increases false positives and can degrade ranking unless the
+   ∗ Corresponding author                                                    added candidates are scored conservatively and their geometric
+agreement is used explicitly.                                               improve and where their claims stop.
+     Confidence quality is the third part of the problem. IoU-                 The contributions are as follows:
+aware detectors learn or construct scores that better reflect lo-
+calization accuracy [17]. Quality Focal Loss and VarifocalNet               1. We formulate sparse-radar proposal reliability as the cou-
+similarly integrate localization quality into dense-detector classi-           pled problem of candidate preservation, residual recovery,
+fication targets [15, 16]. These methods establish that a score is             confidence–quality alignment, and local geometric consensus,
+not merely a class probability; it controls ordering, suppression,             while retaining a compact PointPillars-style backbone.
+and the precision–recall curve. Calibration adds a related but              2. We introduce a quality-aligned head whose positive target
+different requirement: a numerically high confidence should                    combines objectness and online 3D IoU, together with conser-
+correspond to an appropriate empirical success frequency [41].                 vative recovery and voting rules that preserve weak evidence
+A route can improve AP by reordering boxes while worsening                     without allowing it to dominate the ranked output.
+calibration, or reduce calibration error without improving every
+range or sparsity group. The two properties must therefore be               3. We evaluate strict reliability through 12 paired dataset-seed
+measured separately.                                                           comparisons. The strict route improves RDAR in every pair,
+     Most detector comparisons compress these decisions into                   with a mean gain of 0.9726 AP and a minimum gain of 0.1718
+one mean AP value. That summary is necessary but insufficient                  AP.
+for a reliability claim. A method can obtain a higher macro
+mean because of a large gain on one dataset while regressing on             4. We separate this strict route from a high-performance oper-
+another. It can also benefit from one training initialization and              ating point that raises macro AP by 3.7662 but contains one
+fail under a second. Sparse radar exacerbates this risk because                seed-level regression, and we report calibration, robustness,
+the four datasets considered here differ markedly in density and               sensitivity, efficiency, and failure-boundary evidence rather
+measurement statistics. We therefore distinguish two questions.                than relying on aggregate AP alone.
+First, what configuration maximizes average accuracy? Second,                    The remainder of the paper follows this argument directly.
+what configuration improves a fixed baseline in every paired                Related work locates the four proposal decisions in the detector
+dataset-seed comparison? These questions define different oper-             literature; the method then defines the availability, quality, and
+ating points and should not be answered by relabeling the same              consistency mechanisms. The experimental setup fixes datasets,
+result.                                                                     metrics, and paired comparisons before any outcome is inter-
+     This paper addresses proposal reliability rather than propos-          preted. Results proceed from the formal main comparison to
+ing a larger backbone. The framework decomposes the deci-                   mechanism-specific and boundary analyses, and the discussion
+sion path into four functions. Candidate-preserving NMS (M1)                separates what the evidence supports from what remains unveri-
+retains borderline boxes for subsequent processing. Residual                fied.
+proposal recovery (M2) incorporates complementary predictions
+but caps their scores below the primary stream. Quality-aligned
+scoring (M3) replaces binary positive targets with online 3D-IoU            2. Related Work
+soft targets. Finally, the strict route applies an expert-consistency
+                                                                            2.1. Point, voxel, and pillar representations
+gate followed by score-weighted local voting that adjusts BEV
+position and heading without resizing the box. This separation                  The representation chosen for an irregular point cloud deter-
+identifies which steps are trainable and which are proposal-level           mines both the available geometric information and the compu-
+inference operations.                                                       tational cost of detection. PointNet established a permutation-
+     Two final routes are reported. The strict route is selected            invariant architecture for unordered point sets, and PointNet++
+according to a no-regression criterion: its AP difference rela-             introduced local hierarchical aggregation [1, 2]. These models
+tive to the RDAR baseline must be positive for all four datasets            avoid quantization but must repeatedly sample and group points.
+and all three seeds. The high-performance route uses quality-               In sparse radar, direct point processing is conceptually attrac-
+aligned training and a relaxed anchor configuration to maximize             tive because every return is valuable, yet the limited and highly
+macro AP. It is retained because it exposes substantial perfor-             variable number of returns can make neighborhood construction
+mance headroom, but it is not described as strict when one                  unstable.
+paired TruckScenes result is negative. Reporting both prevents a                Voxel methods regularize the input before convolution. Vox-
+favorable average from being presented as universal reliability.            elNet learns a feature for each occupied voxel, whereas SEC-
+     The experiments are organized as an evidence ladder. A                 OND exploits sparse convolution to avoid processing empty
+formal four-dataset, three-seed comparison establishes the prin-            space [3, 4]. The resulting three-dimensional feature grids re-
+cipal performance and paired-reliability results. A seed-2028               tain height structure but impose a memory cost that depends
+progressive study shows how proposal preservation, recovery,                on resolution. Submanifold sparse convolutions further reduce
+and quality alignment alter the construction path, without being            unnecessary activation growth in sparse networks [21]. These
+misrepresented as a full three-seed factorial ablation. Expected            approaches are strong general-purpose 3D detection foundations,
+calibration error (ECE), range and sparsity diagnostics, determin-          but their greater architectural capacity can obscure whether an
+istic point-dropout tests, a closed voting-threshold grid, runtime          improvement originates in representation or in the final proposal
+profiling, and qualitative BEV cases then probe why the methods             decision path.
+                                                                        2
+    PointPillars collapses the vertical dimension within each              keeps the candidate pool open, M2 restores complementary evi-
+pillar and scatters the encoded features to a BEV pseudo-image             dence with capped scores, M3 orders proposals by localization-
+[5]. The design sacrifices some explicit height resolution in              aware confidence, and the strict vote uses local agreement only
+exchange for a simple 2D backbone and fast inference. It is                after those earlier steps. The staged construction is a principal
+especially suitable for the present study because the proposal             distinction from applying a single alternative NMS threshold.
+pipeline can be modified while the feature extractor remains
+fixed. RadarPillar-style and related radar adaptations follow the          2.3. Target assignment and localization-quality scoring
+same principle: radar attributes are encoded in a regular BEV                   Dense detectors must decide which anchors or spatial loca-
+representation, after which an anchor head predicts objectness,            tions supervise each object. FCOS removes explicit anchors,
+geometry, and orientation.                                                 whereas ATSS adapts the positive-sample threshold to the statis-
+    More elaborate detectors improve proposal features through             tics of candidate anchors [13, 14]. These studies show that target
+a second stage. PointRCNN generates point-based proposals                  assignment is not a neutral preprocessing step: it determines
+and pools features within them, whereas PV-RCNN combines                   which locations learn objectness and regression. In sparse radar,
+sparse voxels with keypoint abstraction [6, 7]. CenterPoint in-            small perturbations of a predicted box can produce a large rela-
+stead treats object centers as keypoints and reduces reliance on           tive change in 3D IoU, making a rigid binary target particularly
+anchors [10]. These methods improve representation and geo-                coarse.
+metric reasoning, but final AP still depends on score ordering                  Focal Loss addresses the imbalance between abundant easy
+and duplicate removal. Our study fixes a compact pillar back-              negatives and scarce hard examples by modulating binary cross
+bone and moves the analytical emphasis to those final proposal             entropy [12]. It does not, by itself, distinguish a well-localized
+decisions.                                                                 positive from a poorly localized positive. IoU-Net predicts lo-
+                                                                           calization quality as a separate quantity and uses it to improve
+2.2. Proposal generation, suppression, and voting                          ranking [17]. Generalized Focal Loss instead embeds a continu-
+    Two-stage object detection made the proposal set an explicit           ous quality value in the classification target [15]. VarifocalNet
+intermediate representation. Faster R-CNN generates regions                learns an IoU-aware classification score whose magnitude re-
+before classification and box regression, and Cascade R-CNN                flects both object presence and localization accuracy [16]. These
+progressively raises the localization quality of its stages [11,           approaches motivate the main trainable component of our frame-
+18]. In point clouds, VoteNet uses learned Hough voting to                 work.
+aggregate point evidence around object centers [9]. Although                    Our quality target differs in two practical respects. First, it
+these architectures differ from our single-stage radar setting, they       uses the aligned 3D IoU between the decoded prediction and its
+share an important premise: several uncertain local observations           assigned target rather than a two-dimensional IoU. Second, it
+can jointly yield a more stable object hypothesis.                         retains a residual objectness floor. The floor avoids assigning
+    NMS converts a dense set of hypotheses into a ranked detec-            an extremely small target to a valid positive when the online
+tion list. A hard variant selects the current highest-scoring box          regression estimate is still inaccurate early in training. The
+and deletes neighbors whose overlap exceeds a threshold. This              quality target and focal modulation are thus used to reshape
+procedure is efficient, but its errors are irreversible. Soft-NMS          ranking without discarding the binary notion that an assigned
+retains overlapping boxes and decays their scores, demonstrat-             anchor corresponds to an object.
+ing that immediate deletion is not always optimal [19]. Sparse                  Quality-aware ranking is related to, but not synonymous
+R-CNN goes further by learning a fixed proposal set and iter-              with, calibration. Calibration evaluates whether confidence mag-
+ative proposal interactions [20]. Both lines of work support               nitude agrees with empirical correctness, while AP depends
+treating proposal survival as a design decision rather than an             primarily on ordering. Modern neural networks can be accurate
+unchangeable implementation detail.                                        and still overconfident [41]. Object detection complicates the
+    Box voting represents a complementary strategy. Instead                definition further because correctness depends on both class
+of selecting one hypothesis and discarding the rest, voting esti-          and localization threshold. For this reason, we report ECE as
+mates a consensus geometry from nearby predictions. In three-              a diagnostic for the high-performance route and do not infer
+dimensional scenes the operation requires care: box centers,               calibration from an AP increase. The strict voting route is eval-
+dimensions, and headings live in different spaces, and heading             uated for paired AP consistency, not promoted as a calibration
+is periodic. A direct arithmetic mean can fail when equivalent             technique.
+orientations lie near the angle boundary. Our strict vote therefore
+computes circular means in doubled-angle space and changes                 2.4. Radar benchmarks and multimodal context
+only BEV position and heading. This conservative choice is de-
+                                                                               Automotive radar research now spans radar spectra, range–
+liberately narrower than learned voting networks; it is intended
+                                                                           angle maps, point clouds, and dense radar tensors. Early learning
+to reduce local proposal jitter without introducing a second high-
+                                                                           systems demonstrated that radar-specific representations contain
+capacity refinement network.
+                                                                           sufficient information for classification and detection [24, 23].
+    Proposal preservation alone can increase false positives,
+                                                                           Range–angle processing retains a regular sensor-domain struc-
+while voting alone cannot reconstruct a proposal that was previ-
+                                                                           ture, whereas point-cloud conversion makes radar compatible
+ously removed. The current framework therefore links survival,
+                                                                           with established 3D detection toolchains. The present study uses
+recovery, scoring, and consensus in a defined sequence. M1
+                                                                       3
+the latter representation to focus on proposal behavior across                  reaches the final processing stages. Quality concerns whether
+multiple public data sources.                                                   its score agrees with its localization. Consistency concerns
+    K-Radar provides 4D radar measurements under varied                         whether neighboring predictions support a common geometry.
+weather conditions, and Enhanced K-Radar studies density                        M1 and M2 primarily address availability, M3 addresses quality,
+reduction and accessibility [26, 27]. View-of-Delft and                         and strict consistency refinement acts on the final proposal set.
+TJ4DRadSet extend the available road-user and driving scenar-                   The division is functional: M1, M2, and the final gate/vote are
+ios [28, 29]. V2X-Radar introduces infrastructure, vehicle, and                 proposal-level operations, while M3 changes training.
+cooperative perspectives [30]. These datasets differ in coverage,
+density, sensing geometry, and labeling. Such variation is                      3.2. Baseline detector and framework overview
+inconvenient for a single-dataset leaderboard but valuable for                       The common detector follows PointPillars [5]. Points are
+testing whether a proposal rule is tied to one measurement                      grouped into vertical pillars with a voxel size of [0.25, 0.25, 5.0]
+regime.                                                                         m within the baseline range [0, −25, −3, 60, 25, 2] m. At most
+    Multimodal approaches use radar as complementary evi-                       32 points are retained per pillar, with 16,000 training voxels
+dence. RADIANT associates radar measurements with image                         and 40,000 test voxels. A PillarVFE maps each occupied pil-
+features, while Radar Voxel Fusion integrates radar in a spatial                lar to 64 channels, PointPillarScatter places the features on the
+3D representation [31, 32]. PointPainting enriches point features               BEV grid, and a 2D backbone with block depths [3, 5, 5], strides
+with image semantics, and radar-aware painting adapts the strat-                [2, 2, 2], and channels [64, 128, 256] produces the detection fea-
+egy to automotive radar [33, 34]. Cross-modal augmentation                      tures. Three upsampling branches return 128 channels each and
+and contrastive objectives can further stabilize representations                are concatenated before the anchor head.
+[35, 36]. These methods address feature complementation and                          The baseline head predicts classification, seven box residu-
+sensor fusion; our question is orthogonal. We deliberately test                 als, and a two-bin direction label. Its loss weights are 1.0 for
+radar-only predictions so that an apparent proposal improvement                 classification, 2.0 for localization, and 0.2 for direction. For
+cannot be attributed to semantic information imported from a                    the frozen Astyx configuration, the car anchor is approximately
+camera.                                                                         [4.003, 1.800, 1.510] m with bottom height −0.180 m, and the
+    The resulting gap is specific. Existing literature provides                 positive/negative matching thresholds are 0.60/0.45. Dataset-
+strong backbones, adaptive assignment, localization-aware scor-                 specific configuration files provide the corresponding data paths
+ing, suppression variants, and radar datasets, but it rarely evalu-             and anchor statistics, while the network family and evaluation
+ates their proposal-level interaction under a paired multi-seed,                rule remain fixed.
+multi-dataset reliability criterion. We address this gap with a                      The complete processing path has three progressive con-
+controlled pillar backbone and explicitly separate an accuracy-                 struction modules and one strict consistency stage. M1 changes
+maximizing route from a no-regression route.                                    post-processing so borderline proposals survive. M2 combines
+                                                                                the output with a residual stream. M3 trains a quality-aligned
+3. Method                                                                       confidence. The strict route then reweights primary proposals
+                                                                                against an expert stream and performs local box voting. A sep-
+3.1. Problem formulation                                                        arate high-performance route uses the M3 head with relaxed
+    Let a radar frame be represented by a point set X = {xn }n=1
+                                                             Nx
+                                                                 ,              positive assignment and a K-Radar prior configuration. It is an
+where each point contains spatial coordinates and the radar at-                 alternative operating point, not another name for the strict route.
+tributes supplied by the corresponding dataset conversion. The                       This distinction resolves an otherwise ambiguous module
+detector maps X to a set                                                        diagram. The seed-2028 progressive analysis ends in the high-
+                                                                                performance branch because it documents the accuracy-oriented
+                                               N
+                         P = {(bi , si , ci )}i=1p ,                 (1)        construction path. The formal strict route starts from RDAR-
+                                                                                compatible proposals and applies consistency refinement, be-
+where bi = (xi , yi , zi , li , wi , hi , θi ) ∈ R7 is a 3D oriented box,       cause its selection objective is 12-of-12 positive paired differ-
+si ∈ [0, 1] is its confidence, and ci is its class. The experiments             ences. Neither analysis is used to imply that the two endpoints
+consider the car class and use the dataset-specific training and                are identical.
+validation partitions frozen in the project protocol.
+    Conventional training minimizes classification, regression,                 3.3. M1: candidate-preserving NMS
+and direction losses, whereas inference additionally applies
+                                                                                    The baseline configuration uses a score threshold of 0.10
+score filtering and NMS. Our objective is not simply to increase
+                                                                                and a very strict NMS IoU threshold of 0.01. Such a setting
+the number of raw candidates. We seek a ranked set that satisfies
+                                                                                produces a compact output, but it can delete useful evidence
+three properties: plausible weak candidates remain available
+                                                                                before any complementary proposal is considered. M1 lowers
+for recovery; confidence preferentially ranks better-localized
+                                                                                the score threshold to zero and increases the NMS threshold to
+boxes; and redundant hypotheses can provide geometric consen-
+                                                                                0.50. The pre-NMS and post-NMS limits remain 4096 and 500,
+sus rather than only suppressing one another. Reliability is then
+                                                                                respectively. Thus M1 changes which boxes remain available,
+assessed by paired AP differences across datasets and seeds.
+                                                                                not the maximum reported proposal count.
+    We distinguish proposal availability, proposal quality, and
+proposal consistency. Availability concerns whether a candidate
+                                                                            4
+   Let π order boxes by score. Hard NMS accepts the highest                 3.5. M3: localization-quality-aligned scoring
+remaining box and removes a box j whenever                                       Binary positive labels do not distinguish anchors by localiza-
+                                                                            tion accuracy. M3 replaces the positive classification target with
+                     IoU3D (bπ(i) , b j ) > τnms .               (2)        an online 3D-IoU target. For each positive anchor, the predicted
+                                                                            residual and assigned regression target are decoded into bi and
+Increasing τnms from 0.01 to 0.50 delays this deletion and re-
+                                                                            gi . Their aligned quality is
+tains moderately overlapping alternatives. This resembles the
+preservation motivation of Soft-NMS [19], although our imple-                                  qi = IoU3D (bi , gi ) ∈ [0, 1].               (7)
+mentation does not use continuous score decay. The retained
+alternatives become inputs to recovery, quality-aware ranking,              The IoU is detached from the classification graph, so the classifi-
+and voting.                                                                 cation loss does not back-propagate through the IoU operation
+    Removing the initial score threshold does not mean every                into box regression.
+proposal is promoted to a high-confidence detection. The post-                  Directly using qi can make a valid positive behave nearly
+NMS limit remains finite, subsequent ranking uses the learned               like a negative while the regressor is immature. We retain a
+score, and residual additions in M2 are explicitly capped below             residual objectness component:
+the positive primary-score range. M1 should therefore be read                        qi = ρ + (1 − ρ)qγi ,
+                                                                                     b                          ρ = 0.55,        γ = 1.0.    (8)
+as a candidate-access operation. It creates the opportunity for
+later modules to use weak boxes; it does not assert that weak               Negatives receive zero and ignored anchors are excluded. The
+boxes are correct.                                                          parameter ρ controls the minimum target for an assigned positive.
+                                                                            At ρ = 1, the target reduces to binary objectness; at ρ = 0, it is
+3.4. M2: residual proposal recovery                                         pure IoU quality. The selected value retains both signals.
+                                                                                 Let zi be the classification logit and pi = σ(zi ). The quality
+    M1 cannot restore a hypothesis that exists only in a comple-
+                                                                            focal term is
+mentary prediction stream. M2 takes a primary set P = {(bi , si )}
+and a residual set R = {(r j , t j )}. Frame identifiers and ordering                   1 X             β
+                                                                               LQF =            qi − pi BCEWithLogits(zi ,b
+                                                                                                b                            qi ),     β = 2,
+are validated before fusion. The residual boxes are sorted by t j ,                     N+ i∈C
+and only the top Kr = 50 are processed.                                                                                                      (9)
+    For each residual proposal, we find                                     where the juxtaposition after the modulation factor denotes mul-
+                                                                            tiplication, C is the set of cared anchors, and N+ is the number
+                  i⋆ ( j) = arg max IoU3D (r j , bi ).           (3)        of positives, clipped below by one. This construction follows
+                                       i
+                                                                            the general quality-aware principle of Generalized Focal Loss
+When the best IoU is at least τr = 0.10, the residual and primary           [15], but uses online aligned 3D IoU and an explicit objectness
+geometries are combined using normalized score weights. For                 floor for sparse radar.
+the six non-angular box parameters,                                              The full training loss is
+                                    si⋆ bi⋆ ,1:6 t j r j,1:6                                  L = LQF + 2Lbox + 0.2Ldir .                   (10)
+                     b j,1:6 =
+                     e                                       .   (4)
+                                         s i⋆ + t j                         M3 does not add a second inference branch. The original classifi-
+Heading is π-periodic for an oriented rectangular box. We there-            cation logit is trained to express the combined objectness–quality
+fore use doubled-angle circular averaging:                                  target, leaving the 4.830 M parameter count unchanged. The
+                                                                            quality-aligned route also changes the car assignment thresholds
+                                                          
+            1          X              X                               to 0.50/0.35 in the relaxed positive-assignment configuration
+       θ j = atan2 
+       e                    wk sin 2θk ,     wk cos 2θk  . (5)          and uses the candidate-preserving post-processing settings.
+            2          k∈{i⋆ , j}                   k∈{i⋆ , j}                  The role of M3 is ranking. A well-localized proposal should
+                                                                            receive a larger target than a poorly localized proposal assigned
+This avoids cancellation when equivalent headings fall on oppo-
+                                                                            to the same class. Better ranking can improve which proposal
+site sides of the numerical angle boundary. If the best overlap is
+                                                                            survives NMS and where a detection appears on the precision–
+below 0.10, the residual geometry is appended unchanged.
+                                                                            recall curve. It does not guarantee that confidence is calibrated in
+     Recovered proposals are deliberately prevented from dom-
+                                                                            every sense, so ECE is measured independently in Section 5.5.
+inating the primary ranking. Let s+min be the smallest positive
+primary score in the evaluated prediction set and tmax the maxi-            3.6. Strict consistency refinement
+mum residual score in the frame. The assigned recovery score
+                                                                                The strict route applies two proposal-level operations to a
+is
+                     s+min                                                  primary RDAR set: an expert-consistency quality gate and local
+                           !                         !
+                                           tj
+               sj =
+                rec
+                             0.5 + 0.5                 ,       (6)          box voting. The expert is a stable BEV-gated detector with the
+                       2               max(tmax , ϵ)
+                                                                            same output parameterization. Its purpose is not to replace the
+where adjacency denotes multiplication and ϵ = 10−12 prevents               primary detector but to provide a second assessment of whether
+division by zero. The factor in parentheses lies in [0.5, 1], so            a proposal is spatially supported. The strict route is selected
+every residual score is at most half the smallest positive primary          by the paired no-regression gate described below, not by the
+score.                                                                      performance of a single seed.
+                                                                        5
+3.6.1. Expert-consistency quality gate                                          high-performance route uses the same quality-focal formulation
+    Let E = {(e j , u j )} be the expert predictions. The final Kr = 50         with relaxed positive assignment and the accuracy-oriented prior
+entries of the combined primary set are reserved for residual                   configuration. It is chosen by macro AP across the four datasets.
+additions and are not gated. For every other primary proposal,                  Its intended use is to show the performance available when
+the best expert match is                                                        average accuracy is prioritized.
+                                                                                     The strict route applies the expert gate and local vote. Let
+                    j⋆ (i) = arg max IoU3D (bi , e j ).              (11)       Amd,r be AP for method m, dataset d, and seed r. A candidate is
+                                      j
+                                                                                strict only when
+If the maximum IoU vi is at least τe = 0.30, the score becomes
+                                                                                          ∆d,r = Am      RDAR
+                                                                                                  d,r − Ad,r  >0     ∀(d, r) ∈ D × S,       (17)
+           s′i = s1−α
+                  i   uαj⋆ vηi ,          α = 0.30,     η = 0.25.    (12)
+                                                                                where |D| = 4 and |S| = 3. This definition contains no tolerance
+This geometric product requires agreement among primary con-                    for a small negative difference. It is stronger than requiring a
+fidence, expert confidence, and overlap. The small IoU exponent                 positive macro mean, but remains bounded to the tested data,
+avoids allowing modest geometric noise to erase otherwise sup-                  splits, and seeds.
+ported radar proposals. If vi < 0.30, the proposal is retained but                  Selection by Eq. (17) is not a claim that the strict route
+down-weighted:                                                                  has the highest AP. Indeed, the high-performance route has a
+                                                                                larger macro mean. The two routes answer different engineering
+                        s′i = κsi ,         κ = 0.50.                (13)       questions: whether a configuration offers the largest average
+                                                                                gain and whether it avoids a regression in the available paired
+Keeping unmatched proposals instead of deleting them preserves
+                                                                                tests.
+the conservative character of the pipeline. The gate affects
+ranking but does not move a box.
+                                                                                3.8. Algorithmic summary
+3.6.2. Local proposal voting                                                       For clarity, the complete procedure is summarized below.
+    The voting stage refines geometry using the gated scores.                   Step 1: Encode the radar frame with PillarVFE, scatter pillar
+For each primary box i, a neighborhood is defined by                                    features to BEV, and predict anchor classification, box
+                                                                                        residuals, and direction.
+          Ni = { j : IoU3D (bi , b j ) ≥ τv },          τv = 0.24.   (14)
+                                                                                Step 2: During M3 training, decode positive boxes, compute
+If |Ni | ≤ 1, the box is unchanged. Otherwise, w j = max(s′j , 10−8 )                   aligned 3D IoU, form the soft target in Eq. (8), and
+and                              P                                                      optimize the combined loss. The baseline route retains
+                                   j∈N w j b j,1:6
+                         ci,1:6 = P i                           (15)                    binary classification.
+                                      j∈Ni w j
+
+defines the consensus geometry. Consensus heading is again                      Step 3: Apply candidate-preserving NMS with zero initial score
+calculated in doubled-angle space. The strict xy mode updates                           threshold, τnms = 0.50, and a 500-box post-NMS limit.
+only the BEV center:                                                            Step 4: Retain the top 50 complementary residual proposals.
+                                                                                        Fuse a residual box with its best primary match when
+            b′i,xy = (1 − λ)bi,xy + λci,xy ,          λ = 0.40.      (16)
+                                                                                        3D IoU is at least 0.10; otherwise append it. Assign the
+Heading is interpolated circularly with weights 1 − λ and λ.                            conservative score in Eq. (6).
+Height, center z, length, width, and height remain unchanged.
+                                                                                Step 5: For the strict route, match each non-residual primary
+Restricting the update prevents the consensus from artificially
+                                                                                        proposal to the expert stream, apply Eq. (12), and down-
+shrinking or expanding boxes to satisfy the evaluation threshold.
+                                                                                        weight unmatched boxes by 0.50.
+    The IoU neighborhood threshold is lower than the 0.50 eval-
+uation threshold. This is intentional: multiple radar hypotheses                Step 6: Form local neighborhoods at τv = 0.24 and update BEV
+for the same vehicle can have modest 3D overlap because of                              center and heading using Eq. (16). Return the residual
+height and dimension noise while still agreeing in BEV. Thresh-                         tail unchanged.
+old sensitivity is nevertheless evaluated over a closed grid rather
+than justified only after observing the selected setting. The final             Step 7: Rank the resulting predictions and evaluate them with
+50 residual proposals remain outside the voting pool, ensur-                            the identical APR40 implementation used for every com-
+ing that consistency refinement cannot undo M2 by moving or                             pared method.
+suppressing the recovered tail.
+                                                                                3.9. Training and implementation details
+3.7. Operating routes and selection criteria                                        Training uses the OpenPCDet codebase and an Adam one-
+    The RDAR baseline denotes M1 followed by M2 under the                       cycle optimizer for 160 epochs. The frozen baseline configu-
+frozen recovery protocol. The quality-aligned route applies                     ration uses a per-GPU batch size of four, initial learning rate
+M3 and provides the intermediate trainable comparison. The                      0.003, weight decay 0.01, momentum 0.9, one-cycle momenta
+                                                                            6
+[0.95, 0.85], warm-up fraction 0.4, division factor 10, and gra-           all-parameter vote could fit the local cluster more closely but
+dient norm clipping at 10. Random world flips, rotations in                would also create a stronger risk of dataset-specific size bias.
+[−π/4, π/4], and scaling in [0.95, 1.05] are applied during train-         The current operation tests the narrower hypothesis that local
+ing. Ground-truth sampling is disabled in the frozen radar con-            center and orientation jitter are correctable.
+figuration used for the controlled comparisons.                                Fifth, all thresholds are global within a route. The main for-
+     All models are trained independently with seeds 2026, 2027,           mal comparison does not choose a different vote IoU or strength
+and 2028. The formal comparison uses the same data partitions,             for each dataset. The closed sensitivity grid includes dataset-
+class definition, metric, checkpoint epoch, and evaluation code            level outcomes, but one common setting is reported across Astyx,
+for each paired method. Proposal-level scripts validate frame              TruckScenes, V2X-Radar-V, and K-Radar. Dataset-specific com-
+order before combining prediction files. This check is important           pensation screens are analyzed separately and are not silently
+because an apparently valid fusion between misaligned frame                folded into the strict route.
+lists could silently produce meaningless boxes.                                These safeguards make the method less flexible than an un-
+     The progressive construction study is intentionally narrower.         constrained ensemble, but that is intentional. The contribution is
+It holds the seed at 2028 and adds M1, M2, quality alignment,              a controlled proposal-refinement study. A method that changes
+and the high-performance calibration variant sequentially. It              the data order, score privileges, geometry, or thresholds inde-
+is used to identify the contribution scale of the stages, not to           pendently for each result would be difficult to audit and would
+establish that every intermediate module is positive for all seeds.        weaken the paired reliability claim.
+The formal strict result instead evaluates the final strict route on
+all 12 paired cells.
+                                                                           4. Experimental Setup
+     Computational cost is reported in three parts. Trainable
+parameters distinguish model capacity. A fixed profiler mea-               4.1. Datasets and protocol
+sures detector forward execution including OpenPCDet post-
+                                                                               We evaluated radar-only car detection on four datasets.
+processing but excluding AP computation and result serializa-
+                                                                           Astyx provides an automotive radar point-cloud benchmark.
+tion. A separate timer measures only the strict voting loop and
+                                                                           MAN TruckScenes covers autonomous trucking scenes and a
+excludes prediction-file input/output. Keeping these measure-
+                                                                           sensor geometry distinct from passenger-car platforms. V2X-
+ments separate prevents a fast detector result from hiding an
+                                                                           Radar-V contributes the vehicle-side subset of a cooperative 4D
+expensive post-processing stage.
+                                                                           radar collection, and K-Radar contains 4D radar measurements
+                                                                           across varied weather conditions [26, 30]. The frozen conver-
+3.10. Design invariants and safeguards
+                                                                           sions are denoted Astyx, TruckScenes-mini, V2X-Radar-V-400,
+    The implementation enforces several invariants that are easy           and K-Radar-400 in the experiment records. We use the shorter
+to omit from a high-level pipeline diagram. First, each prediction         dataset names in the paper.
+set remains frame aligned. All proposal-combination scripts                    The primary metric is car APR40 at 3D IoU 0.50. Forty-
+compare the complete sequence of frame identifiers and stop                point interpolation reduces the coarseness of the older 11-point
+when it differs. A mismatch is not repaired by truncation or               protocol, while the fixed 0.50 IoU threshold makes the proposal-
+sorting because either operation could pair predictions from               localization requirement explicit. All methods use the same
+different scenes.                                                          evaluation implementation and class mapping. AP values are
+    Second, primary and residual proposals have different rank-            reported on a 0–100 scale, so a difference of 1.0 denotes one AP
+ing privileges. Primary scores are learned by the detector. Resid-         point rather than one percentage relative to the baseline.
+ual scores are bounded by Eq. (6) and appended as the final 50                 The formal experiment crosses four datasets with seeds 2026,
+entries. The quality gate and voting stage calculate Nprimary =            2027, and 2028. For each dataset, models are trained indepen-
+Ntotal − 50 and operate only on the primary prefix. This conven-           dently under the same optimization schedule. We report the
+tion prevents a residual candidate from becoming both a source             mean and sample standard deviation over the three seeds. More
+and a target of repeated refinement. It also makes the reported            importantly, strict reliability is assessed from paired differences
+proposal counts reproducible.                                              between methods trained with the same seed. This pairing re-
+    Third, angle operations respect the geometry of a 3D box.              moves some between-seed variation from the comparison and
+For car detection, headings θ and θ + π represent the same undi-           exposes a regression that could be hidden by an average.
+rected rectangular axis before the direction classifier resolves               The evidence is ordered to avoid circular interpretation. The
+orientation. Linear averaging near the wrap boundary can return            formal three-seed comparison supports the principal claims. The
+an orthogonal or unstable direction. Doubled-angle sine and                seed-2028 progressive study explains the construction path but
+cosine averages provide a continuous mean on this π-periodic               is not used as proof of three-seed monotonicity. Calibration and
+space. The same representation is used for residual fusion and             recall-bin analyses diagnose scoring behavior. Point dropout
+proposal voting.                                                           and threshold grids are stress and sensitivity tests. Runtime
+    Fourth, the strict vote is deliberately non-expansive in box           profiling and qualitative examples address deployment cost and
+dimensions. Only x, y, and heading are updated; z, l, w, and               mechanism. A result from a secondary analysis is not promoted
+h are copied from the original proposal. This restriction limits           to a formal claim merely because it is favorable.
+the ways in which a vote can improve IoU. A more flexible
+
+                                                                       7
+4.2. Metric and statistical summaries                                     across all available paired conditions, the strict route provides
+    For a ranked list at a fixed 3D-IoU match threshold, precision        the relevant evidence. A single ranking of methods would erase
+and recall after the first k predictions are                              this difference in engineering objective.
+
+                TP(k)                            TP(k)                    5.2. Dataset-level interpretation
+ Prec(k) =                 ,      Rec(k) =                 . (18)
+             TP(k) + FP(k)                   TP(k) + FN(k)                     Astyx shows the clearest benefit from the candidate and qual-
+                                                                          ity stages. In the seed-2028 construction, M1 alone adds 3.8383
+APR40 samples the interpolated precision envelope at 40 recall            AP, and M3 later adds 2.6778. Across three seeds, the high-
+positions. Because confidence determines the traversal order,             performance route reaches 36.9801, while strict voting reaches
+M3 can change AP even when the set of decoded boxes is simi-              33.6898. This pattern suggests that Astyx contains useful bor-
+lar. Because voting changes geometry, the strict route can also           derline proposals whose ranking can be improved substantially.
+change which predictions cross the 0.50 IoU matching threshold.           The selected qualitative case supports this interpretation but does
+     The macro result for method m is the unweighted average of           not establish its frequency.
+the four dataset-level seed means:                                             TruckScenes is the limiting dataset for the high-performance
+                                                                        claim. RDAR has the largest seed standard deviation among
+                    m       1 X  1 X m 
+                   Amacro =              A  .            (19)           its four results on TruckScenes, and seed 2027 is substantially
+                            4 d∈D  3 r∈S d,r 
+                                   
+                                                                          stronger than the other two RDAR seeds. The high-performance
+                                                                          route improves seeds 2026 and 2028 but does not preserve that
+This choice gives each dataset equal influence regardless of
+                                                                          high seed-2027 result. Strict voting instead produces positive
+the number of frames or objects. It avoids allowing the largest
+                                                                          differences of 0.4765, 0.8135, and 1.4721. The contrast indicates
+validation partition to dominate, but it does not imply equal
+                                                                          that maximizing one common macro objective and maintaining
+operational importance.
+                                                                          a strong dataset-specific initialization are not equivalent.
+    Standard deviations describe variation across the three train-
+                                                                               V2X-Radar-V has the smallest strict mean gain and the nar-
+ing seeds. They are not confidence intervals on dataset perfor-
+                                                                          rowest individual margin. At the same time, quality alignment
+mance. For the strict comparison, we additionally report the 12
+                                                                          raises the mean by 2.7093 AP and the high-performance route
+paired differences, their mean and median, a bootstrap interval
+                                                                          raises it by 2.6758. Score-quality learning is therefore more
+for the mean, and an exact sign test. Effect sizes and the mini-
+                                                                          consequential than conservative voting on this dataset. The
+mum paired difference remain primary; the p-value is not used
+                                                                          high-performance standard deviation also falls from 1.1490 for
+to convert a small improvement into a practically large one.
+                                                                          RDAR to 0.5122, although three seeds are too few to claim a
+                                                                          general variance reduction.
+5. Results                                                                     K-Radar contributes the largest performance headroom. The
+                                                                          high-performance route improves the mean by 7.8045 AP and
+5.1. Main comparison                                                      strict voting improves it by 1.6928. M3 provides a 7.4416 AP
+     The formal three-seed comparison shows two distinct out-             jump in the seed-2028 progressive analysis. K-Radar’s mea-
+comes. RDAR obtains a macro mean of 35.3552. Strict pro-                  surement regime is thus particularly favorable to the relaxed
+posal voting increases it to 36.3278, a gain of 0.9726 AP. The            assignment and quality target. This large contribution is pre-
+gain is modest relative to the high-performance branch, but ev-           cisely why macro AP alone must be supplemented by per-dataset
+ery dataset-level mean increases: 0.8551 on Astyx, 0.9207 on              and paired reporting: a method can look strong overall while
+TruckScenes, 0.4216 on V2X-Radar-V, and 1.6928 on K-Radar.                behaving differently elsewhere.
+TruckScenes is the only dataset on which the strict route also                 Across datasets, no single mechanism explains every im-
+provides the best mean among the reported routes.                         provement. Candidate survival is prominent on Astyx, strict
+     The quality-aligned route reaches 38.7283 macro AP. It pro-          consensus is most valuable on K-Radar and TruckScenes, and
+vides large mean improvements on Astyx, V2X-Radar-V, and                  quality alignment provides the larger gain on V2X-Radar-V. The
+K-Radar, but the qflr55 configuration has a negative TruckScenes          framework should therefore be interpreted as a decomposition
+difference at seed 2027. It therefore supports the effectiveness          of proposal failure modes rather than a claim that all radar data
+of quality-aware ranking but not Eq. (17).                                share one dominant defect.
+     The high-performance route reaches 39.1214 macro AP,
+3.7662 above RDAR. Its largest mean gain is 7.8045 AP on                  5.3. Paired reliability across datasets and seeds
+K-Radar, followed by 4.1454 on Astyx and 2.6758 on V2X-                       The paired comparison expands the strict-route result. All 12
+Radar-V. TruckScenes improves by only 0.4392 on average. At               differences are positive. The smallest is 0.1718 on V2X-Radar-
+seed 2027, TruckScenes decreases from 18.3845 for RDAR to                 V seed 2027, and the largest is 2.6060 on K-Radar seed 2026.
+17.1075, a difference of −1.2770. This single cell is sufficient to       The mean over paired cells is 0.9726 and the median is 0.8493.
+reject the strict label even though the macro result is highest.          Thus the conclusion does not depend on one extreme K-Radar
+     The comparison illustrates why the two routes are both use-          improvement: removing the maximum cell would still leave
+ful. If a deployment can accept dataset-specific validation and           every remaining difference positive.
+prioritizes average AP, the high-performance route is preferable.             We computed a nonparametric bootstrap interval by resam-
+If the experimental objective is to avoid a measured regression           pling the 12 paired differences and recalculating their mean. The
+                                                                      8
+95% interval is [0.6468, 1.3536], which remains above zero.                high-performance route improves ECE by 0.0749 on Astyx,
+An exact sign test of 12 positive differences gives a one-sided            0.0407 on TruckScenes, 0.0354 on V2X-Radar-V, and 0.0845
+p = 0.000244 and a two-sided p = 0.000488 under an equal-                  on K-Radar. Across the three-seed diagnostic audit it produces
+probability sign null. These statistics are auxiliary because the          12 wins and no losses relative to RDAR, with a mean ECE
+four datasets are not random draws from a well-defined popula-             reduction of 0.0504.
+tion and 12 cells do not justify a universal claim. Their role is to            The quality-aligned route has the best V2X-Radar-V value,
+summarize the consistency of the finite paired experiment, not             whereas the high-performance route is best on the other three
+to replace effect sizes or dataset-level reporting.                        datasets. Thus the final accuracy adjustment is not uniformly
+    V2X-Radar-V defines the narrowest margin. Its mean im-                 best calibrated even though it has the largest macro AP. This
+provement is only 0.4216, and two seeds are below 0.22 AP. The             result reinforces the separation between ranking, calibration, and
+strict conclusion is consequently sensitive to reproducibility of          aggregate accuracy.
+these small differences. We retain four decimal places in the                   Strict proposal voting behaves differently. It wins all formal
+audit trail, use identical evaluation code, and avoid rounding             AP pairs but worsens ECE in all 12 diagnostic comparisons, with
+the individual cells before testing the gate. In a deployment              a mean unfavorable change of 0.0270. Voting shifts geometry
+decision, the magnitude should be considered together with the             and reweights proposal support after the confidence has been
+direction: the route is consistently positive under this protocol,         learned; it was not optimized to preserve probability calibration.
+not uniformly large.                                                       We therefore make no calibration claim for the strict route.
+                                                                                Range and sparsity results are also mixed. Relative to RDAR,
+5.4. Progressive module ablation                                           strict voting has 26 wins, 13 ties, and 9 losses across the audited
+    The seed-2028 progressive study begins from a PointPil-                range bins, and 18 wins, 19 ties, 8 losses, and 3 missing cells
+lars screen rather than RDAR. M1 raises macro AP by 1.7483.                across sparsity bins. The high-performance route has 17 range-
+Astyx accounts for the largest part of this increase, improv-              bin wins, 10 ties, and 21 losses, despite its strong AP and ECE.
+ing by 3.8383 AP, while the other three datasets also remain               These counts show that aggregate ranking gains cannot be trans-
+positive. This pattern is consistent with the hypothesis that              lated into a statement that every distant or sparsely observed
+the baseline candidate filter is overly aggressive, although the           target is recalled more often. The bin analysis is used as a failure
+dataset-dependent magnitude shows that changing NMS is not a               boundary, not selectively filtered into a positive presentation.
+uniform source of gain.
+    M2 raises macro AP by 0.0169. Its increments range from                5.6. Robustness and corruption tests
+0.0078 on K-Radar to 0.0257 on TruckScenes. These values are                    We simulated measurement loss by dropping radar points
+too small to portray recovery as the main performance mech-                before voxelization with a fixed dropout seed of 3407. Mod-
+anism. M2 instead provides a conservative mechanism and                    els were not retrained or adapted to the corruption. The high-
+an interface for complementary evidence. Reporting the small               performance route retains a macro advantage at dropout rates
+effect is important: a plausible module description does not jus-          of 10%, 20%, and 30%. Relative to its own clean checkpoint,
+tify an exaggerated claim when the observed incremental AP is              its macro changes are +0.1242, −1.2030, and −1.7970 AP, com-
+limited.                                                                   pared with −2.6651, −3.9114, and −3.3868 for RDAR. The
+    M3 supplies the largest step, from 35.7559 to 39.1379 macro            mean degradation advantage is 2.3624 AP.
+AP. Its gains are 2.6778 on Astyx, 2.1489 on TruckScenes,                       At the dataset-by-dropout level, the high-performance route
+1.2594 on V2X-Radar-V, and 7.4416 on K-Radar. The broad                    exceeds RDAR in 11 of 12 cells. The exception is TruckScenes
+positive direction at seed 2028 supports the intended quality-             at 30%, where RDAR obtains 12.0161 and the high-performance
+ranking mechanism. The especially large K-Radar result also                route obtains 11.9555, a difference of −0.0606. The stress
+explains why macro improvements must be accompanied by                     test is therefore average-positive but not strict. In addition,
+paired multi-seed analysis.                                                the available dropout comparison uses the latest frozen check-
+    The final accuracy-oriented adjustment raises macro AP                 points: seed 2028 for all RDAR models, seed 2027 for three
+by another 0.6446 and is positive on all four seed-2028 cells.             high-performance datasets, and seed 2028 for K-Radar. It is
+However, the formal results show that this positive construction           supportive evidence rather than a paired-seed substitute for the
+path does not persist for every seed: TruckScenes seed 2027 is             formal paired comparison.
+negative for the high-performance route. We therefore call the                  An exploratory vote applied directly to the dropout predic-
+progressive analysis a screen rather than a formal monotonic               tions repairs the single negative cell and yields 12 positive com-
+ablation. This wording preserves its explanatory value without             parisons, but its smallest margin is only 0.0010 AP and it reduces
+extending its evidence beyond seed 2028.                                   the original high-performance result in 8 of 12 cells. Because
+                                                                           the setting was examined in response to the failed cell, treating
+5.5. Calibration and diagnostic behavior                                   it as confirmatory robustness evidence would be post hoc. We
+   ECE partitions predictions by confidence and compares                   exclude it from the main claim.
+mean confidence with empirical correctness in each bin [41].                    A separate closed compensation grid evaluates 192 combi-
+The diagnostics show lower ECE for both quality-aware                      nations over range power, support scale, and fusion strength.
+routes than for RDAR on all four seed-2028 datasets. The                   The best settings differ: (0, 8, 0.05) for Astyx, (0, 4, 0.30) for
+
+                                                                       9
+TruckScenes, (2, 1, 0.05) for V2X-Radar-V, and (2, 8, 0.20) for               In the fixed forward profiler, the high-performance detector
+K-Radar. The lack of one shared optimum is itself informative.            remains below 9 ms per frame on all four datasets but is consis-
+Radar statistics are dataset dependent, and a physical-support            tently slower than RDAR. The difference cannot be attributed
+correction selected on one sensor regime should not be assumed            to parameter count; it reflects the configuration and proposal
+optimal on another.                                                       processing performed during the measured forward path.
+    We also screened which radar evidence most usefully re-                   Strict voting adds about 22–23 ms per frame in the current
+ranks proposals. The best Astyx configuration combines all                implementation. The timer processes 500 primary boxes per
+available physical signals and reaches 35.7324 AP in its screen.          frame using GPU 3D-IoU construction followed by a Python
+TruckScenes is best with return count alone at 18.3579. V2X-              loop over proposals. Across the profiled subsets, it votes
+Radar-V prefers count and Doppler at 43.4016, whereas K-Radar             47,790 of 50,000 primary boxes on Astyx, 37,277 of 40,000 on
+prefers count and radar cross section at 54.2241. These screens           TruckScenes, 38,009 of 40,000 on V2X-Radar-V, and 38,457 of
+are not directly comparable to the formal three-seed comparison           40,000 on K-Radar. The large number of local neighborhoods
+because they use a separate screening protocol. Their value is            explains why a mathematically simple operation can dominate
+diagnostic: a fixed semantic notion of “radar quality” does not           runtime.
+translate to one optimal evidence combination on all datasets.                These data prevent two misleading claims. The strict route
+                                                                          is not “zero-cost” merely because voting adds no weights, and
+5.7. Voting-threshold sensitivity                                         detector latency cannot be combined with a separately timed
+    The strict route could be fragile if its 12-of-12 result oc-          vote to create a favorable number. An optimized batched or
+curred only at one precise threshold. We therefore evaluated a            sparse-neighborhood kernel could reduce the overhead, but that
+closed grid over voting IoU and strength. Among the completed             optimization is future work. Under the present implementation,
+settings, (τv , λ) = (0.22, 0.40) reaches 36.1364 macro AP and is         the strict route exchanges latency for paired reliability, while
+positive in all 12 cells; (0.24, 0.50) reaches 36.0479 and is also        the high-performance route offers the more practical accuracy-
+12-of-12 positive. The selected (0.24, 0.40) strict configuration         oriented operating point.
+obtains the formal no-regression result. Neighboring strengths
+of 0.35 and several larger IoU thresholds produce only 10 or 11           6. Discussion
+positive cells.
+    This response surface supports two conclusions. First, all-                The central result is not that one post-processing setting dom-
+pair positivity is not unique to one numerical point, because             inates every alternative. It is that proposal handling accounts
+more than one nearby setting satisfies the gate. Second, the gate         for a measurable and reproducible part of sparse-radar detector
+is not automatic: a slightly different strength can trade a higher        behavior, and that different proposal objectives lead to different
+macro value for one regression. We therefore report both the              operating points. Strict voting improves RDAR in every paired
+selected parameters and the grid boundary rather than claiming            dataset-seed comparison, whereas quality-aligned training pro-
+threshold insensitivity.                                                  duces the larger macro gain. The distinction would be invisible
+                                                                          if the paper reported only the best macro AP.
+5.8. Qualitative cases
+    The qualitative cases connect the voting operation to visible         6.1. How the stages contribute
+proposal changes. In Astyx frame 000499, the RDAR box has                      The progressive experiment suggests a hierarchical mecha-
+IoU 0.4203 and lies below the 0.50 matching threshold. Strict             nism. Candidate preservation has a large initial effect because
+voting moves the BEV center toward the local consensus and                it changes which evidence is available. A later module cannot
+raises IoU to 0.5235. TruckScenes frame 000267 shows a larger             recover a box that no longer exists unless a second stream repro-
+change, from 0.4940 to 0.6599. V2X-Radar-V frame 000361                   duces it. Relaxing the filter consequently increases AP on all
+changes from 0.4970 to 0.5420. In each case a borderline local-           four seed-2028 datasets before any trainable quality change is
+ization becomes a valid match under the metric.                           introduced. The magnitude varies by dataset, which is expected
+    The cases are selected illustrations, not independently sam-          when baseline score and overlap distributions differ.
+pled estimates of effect frequency. They do not prove that voting              Residual recovery contributes little incremental AP in the
+improves every hard object or every range group. Their proper             progressive analysis. This does not support describing M2 as
+role is mechanistic: they show that the restricted xy and heading         a major accuracy innovation. Its value is architectural and con-
+update can change matching status without resizing a box, which           servative: it formalizes how complementary boxes enter the
+is consistent with the formal paired AP result.                           output, how matched geometry is fused, and how scores are kept
+                                                                          below the primary stream. Removing that control would make it
+5.9. Efficiency                                                           difficult to distinguish recovery from simply appending enough
+    The quality-aligned and high-performance detectors preserve           low-quality predictions. The current evidence supports M2 as a
+the 4.830 M parameter count of RDAR because the quality target            stabilizing bridge rather than the dominant module.
+changes supervision rather than adding a branch. The stable                    Quality alignment accounts for the largest improvement.
+expert used by the strict route has 4.868 M parameters. The               The mechanism is consistent with the loss design: binary labels
+voting operation itself contains no trainable parameter.                  encode presence, whereas the soft target differentiates positives
+
+                                                                     10
+by decoded 3D IoU. Because confidence controls ranking and                   calibration procedure. A pipeline that needs consistent AP un-
+NMS, better score–quality agreement can improve AP without                   der the tested conditions may prefer strict voting, provided its
+changing the backbone or parameter count. The ECE results                    confidence values are not interpreted probabilistically without
+offer independent support, particularly the 12-of-12 diagnostic              additional validation. The paper therefore avoids merging “qual-
+improvement of the high-performance route. They do not prove                 ity alignment”, “calibration”, and “strict reliability” into one
+that every individual score becomes well calibrated, but they                marketing claim.
+make a purely incidental ranking explanation less likely.                        Range and sparsity bins reveal another boundary. Sparse
+    Strict voting addresses a different error. Its selected cases            radar difficulty is often described as if fewer points or longer
+show proposals with nearly correct geometry that remain below                range should define a single monotonic axis. In practice, return
+the evaluation threshold. Consensus moves the BEV center                     count interacts with RCS, Doppler, aspect, occlusion, and the
+and heading while preserving dimensions. This limited update                 dataset conversion. The mixed bins and dataset-specific com-
+can convert a near miss into a true positive without allowing                pensation optima indicate that one global physical correction is
+a local cluster to invent a new box size. The paired gains are               unlikely to cover all regimes. This finding favors sensor-aware
+largest on K-Radar and smallest on V2X-Radar-V, indicating                   validation over universal threshold transfer.
+that the prevalence or correctability of localization jitter varies
+by measurement regime.                                                       6.4. Robustness interpretation
+                                                                                 Point dropout evaluates sensitivity to missing input measure-
+6.2. Reliability versus maximum accuracy                                     ments, but it is a synthetic perturbation. Randomly deleting
+     The high-performance route is more accurate on average and              points does not reproduce all physical causes of radar degra-
+would be the natural choice if macro AP were the only objective.             dation: multipath can add returns, occlusion can remove them
+Calling it robust without qualification would nevertheless be                nonuniformly, and calibration error can shift their coordinates.
+misleading. TruckScenes seed 2027 regresses by 1.2770 AP                     The favorable macro degradation of the high-performance route
+even though the TruckScenes three-seed mean improves. The                    therefore supports tolerance to one controlled sparsification pro-
+example demonstrates a general problem in model comparison:                  cess, not general adverse-weather invariance.
+averaging over initializations can turn one substantial regression               The single TruckScenes failure at 30% dropout is small in
+into a small positive mean.                                                  absolute AP but important in interpretation. Repairing it with
+     The strict criterion avoids that presentation error by requiring        a post-hoc voting setting would produce an attractive 12-of-12
+every paired difference to be positive. It does not guarantee                result, yet the same vote harms eight other cells. We retain
+future no-regression. Datasets, seeds, training schedules, and               the negative result because it exposes the actual boundary: the
+thresholds form a finite test set, and a new condition could                 high-performance route is robust on average under the test, not
+still fail. The term “strict” is therefore defined operationally             uniformly. This decision also keeps the confirmatory strict claim
+by Eq. (17), not used as a synonym for universally safe. This                isolated from exploratory robustness tuning.
+bounded definition makes the claim reproducible and falsifiable.
+     The criterion also has a statistical limitation. The 12 cells           6.5. Efficiency and engineering use
+combine four datasets and three seeds, but cells sharing a dataset               The accuracy-oriented quality head does not increase model
+are not independent in the same way as samples from unrelated                parameters, but its fixed-profile latency is approximately two to
+populations. The sign test and bootstrap interval summarize                  four milliseconds higher than RDAR depending on the dataset.
+the observed differences; they do not license a population-level             It remains below nine milliseconds per frame on the profiled
+causal conclusion about every radar sensor. More datasets, more              RTX 3090. The strict route has a more substantial cost. Its
+seeds, and preregistered operating thresholds would strengthen               expert and voting stages require a second source of proposals
+the reliability assessment.                                                  and an additional 22–23 ms per frame for the current vote.
+                                                                                 The overhead is an implementation property as well as a
+6.3. Calibration and failure boundaries                                      method property. The current script computes a dense primary-
+                                                                             box IoU matrix and iterates over proposals in Python. A batched
+    AP, ECE, recall, and localization diagnostics answer differ-
+                                                                             GPU kernel, spatial hashing, or pre-clustering could reduce
+ent questions. The high-performance route improves AP and
+                                                                             the cost without changing Eqs. (12) and (16). Until such an
+ECE but loses more range-bin comparisons than it wins. Strict
+                                                                             implementation is measured, however, the strict route should
+voting improves paired AP while worsening ECE. Neither re-
+                                                                             be positioned for reliability-sensitive offline evaluation or sys-
+sult is contradictory. AP rewards ordering under a localization
+                                                                             tems whose latency budget can accommodate the refinement. It
+threshold; ECE measures the magnitude of confidence relative to
+                                                                             should not be advertised as free or necessarily real time.
+correctness; binned recall measures whether targets are retrieved
+                                                                                 The two-route result can be used as a deployment menu.
+under a particular partition. A method can move the right boxes
+                                                                             RDAR is the lighter reference. The high-performance route pro-
+upward in the ranking while shifting score magnitudes in an
+                                                                             vides the highest mean AP and better ECE at the same parameter
+unfavorable way.
+                                                                             scale. Strict voting supplies the strongest paired no-regression
+    This distinction changes how the method should be deployed.
+                                                                             evidence but incurs extra latency and poorer calibration. No sin-
+A downstream planner that treats confidence as a calibrated prob-
+                                                                             gle route dominates accuracy, reliability, calibration, and runtime
+ability may prefer the quality-aligned branch or apply a separate
+                                                                             simultaneously.
+                                                                        11
+6.6. Limitations and future work                                          Declaration of generative AI and AI-assisted technologies in
+    The study is limited to radar-only car detection and the              the writing process
+frozen versions of four datasets. Other road-user classes have
+                                                                              This draft was prepared with AI-assisted writing support and
+different dimensions and return patterns; the recovery ceiling
+                                                                          must be reviewed, edited, and approved by the authors before
+and voting neighborhood may not transfer unchanged. The study
+                                                                          submission. The final manuscript should follow the journal’s
+also uses a PointPillars-style anchor detector. Testing center-
+                                                                          disclosure requirements and the authors’ own policy decisions
+based and transformer-based radar detectors would determine
+                                                                          about how to report AI assistance.
+whether the proposal mechanisms are architecture independent.
+    The progressive construction analysis is based on seed 2028.
+It shows a coherent path but does not establish independent,              CRediT authorship contribution statement
+monotonic, three-seed contribution for every module. A com-
+plete factorial evaluation would be expensive but would separate             To be completed by the authors.
+interactions between candidate preservation, recovery, and qual-
+ity alignment more strongly. In particular, the small M2 incre-           Declaration of competing interest
+ment warrants careful evaluation before any standalone recovery
+claim.                                                                        The authors declare that they have no known competing
+    The strict route was selected from a threshold grid evaluated         financial interests or personal relationships that could have ap-
+on the same four-dataset protocol used to report it. Neighbor-            peared to influence the work reported in this paper.
+ing all-positive settings reduce concern about a single isolated
+optimum, but a stronger design would select thresholds on a
+                                                                          Data availability
+development set and freeze them before testing on additional
+held-out datasets. Similarly, matched-seed dropout experiments                The paper uses four radar datasets and frozen experimen-
+for both final routes would make the stress comparison cleaner.           tal outputs already recorded in the project workspace. The
+    Future work should therefore prioritize an optimized voting           manuscript should include the final dataset-access statement
+kernel, held-out threshold validation, additional classes and sen-        required by the authors’ submission environment.
+sors, and formal distribution-shift tests. These extensions could
+determine whether the observed reliability pattern generalizes.
+They are not implied by the current results.                              Acknowledgements
+
+                                                                             To be completed by the authors.
+7. Conclusion
+
+    This work examined proposal handling as a source of re-               References
+liability in sparse radar 3D object detection. The framework
+                                                                           [1] Qi, Su, Mo, and Guibas, PointNet: Deep Learning on Point
+preserves borderline candidates, recovers complementary resid-
+                                                                               Sets for 3D Classification and Segmentation, CVPR, 2017.
+ual boxes with conservative scores, trains confidence against
+an online 3D-IoU quality target, and refines locally consistent            [2] Qi, Yi, Su, and Guibas, PointNet++: Deep Hierarchical
+proposals through expert gating and conservative BEV voting.                   Feature Learning on Point Sets in a Metric Space, arXiv
+These changes retain a compact PointPillars-style backbone and                 preprint arXiv:1706.02413, 2017.
+expose the roles of availability, ranking, and geometric consen-
+sus.                                                                       [3] Zhou and Tuzel, VoxelNet: End-to-End Learning for Point
+    Across Astyx, MAN TruckScenes, V2X-Radar-V, and K-                         Cloud Based 3D Object Detection, CVPR, 2018.
+Radar with three seeds, the strict route improves RDAR in all 12
+                                                                           [4] Yan, Mao, and Li, SECOND: Sparsely Embedded Convo-
+paired comparisons. Its mean improvement is 0.9726 AP and its
+                                                                               lutional Detection, Sensors, 2018.
+smallest is 0.1718 AP. A separate high-performance route raises
+macro AP from 35.3552 to 39.1214 and improves ECE in the                   [5] Lang, Vora, Caesar, Zhou, Yang, and Beijbom, Point-
+diagnostic audit, but contains one TruckScenes seed regression                 Pillars: Fast Encoders for Object Detection From Point
+and is therefore not labeled strict.                                           Clouds, CVPR, 2019.
+    The broader conclusion is bounded. Proposal refinement
+can improve both average accuracy and paired consistency, but              [6] Shi, Wang, and Li, PointRCNN: 3D Object Proposal Gen-
+the configurations that optimize those outcomes are not identi-                eration and Detection From Point Cloud, CVPR, 2019.
+cal. Mixed range and sparsity diagnostics, one point-dropout
+                                                                           [7] Shi, Guo, Jiang, Wang, and Li, PV-RCNN: Point-Voxel
+failure, worsened strict-route calibration, and 22–23 ms of vot-
+                                                                               Feature Set Abstraction for 3D Object Detection, CVPR,
+ing overhead prevent a universal superiority claim. Reliable
+                                                                               2020.
+engineering use requires choosing explicitly among accuracy,
+no-regression evidence, confidence quality, and latency rather             [8] Yang, Sun, Liu, and Jia, 3DSSD: Point-Based 3D Single
+than compressing them into one score.                                          Stage Object Detector, CVPR, 2020.
+
+                                                                     12
+ [9] Qi, Litany, He, and Guibas, VoteNet: Deep Hough Voting            [27] Paek, Kong, and Wijaya, Enhanced K-Radar: Optimal
+     for 3D Object Detection in Point Clouds, ICCV, 2019.                   Density Reduction to Improve Detection Performance and
+                                                                            Accessibility of 4D Radar Tensor-Based Object Detection,
+[10] Yin, Zhou, and Krahenbuhl, Center-based 3D Object De-                  2023.
+     tection and Tracking, CVPR, 2021.
+                                                                       [28] Palffy, Pool, and Baratam, Multi-Class Road User Detec-
+[11] Ren, He, Girshick, and Sun, Faster R-CNN: Towards Real-                tion With 3+1D Radar in the View-of-Delft Dataset, 2022.
+     Time Object Detection with Region Proposal Networks,
+     TPAMI, 2017.                                                      [29] Zheng, Ma, Zhu, and others, TJ4DRadSet: A 4D Radar
+                                                                            Dataset for Autonomous Driving, ITSC, 2022.
+[12] Lin, Goyal, Girshick, He, and Dollar, Focal Loss for Dense
+     Object Detection, ICCV, 2017.                                     [30] Yang, Zhang, Li, Wang, Song, Zhao, and Lv, V2X-Radar:
+                                                                            A Multi-modal Dataset with 4D Radar for Cooperative
+[13] Tian, Shen, Chen, and He, FCOS: Fully Convolutional                    Perception, arXiv preprint arXiv:2411.10962, 2024.
+     One-Stage Object Detection, ICCV, 2019.
+                                                                       [31] Long, Kumar, and Morris, RADIANT: Radar-Image Asso-
+[14] Zhang, Chi, Yao, Lei, and Li, Bridging the Gap Between                 ciation Network for 3D Object Detection, AAAI, 2023.
+     Anchor-Based and Anchor-Free Detection via Adaptive
+     Training Sample Selection, CVPR, 2020.                            [32] Nobis, Shafiei, and Karle, Radar Voxel Fusion for 3D
+                                                                            Object Detection, Applied Sciences, 2021.
+[15] Li, Wang, Huang, et al., Generalized Focal Loss: Towards
+     Efficient Representation Learning for Dense Object Detec-         [33] Vora, Lang, Helou, and Beijbom, PointPainting: Sequen-
+     tion, TPAMI, 2022.                                                     tial Fusion for 3D Object Detection, CVPR, 2020.
+[16] Zhang, Wang, Dayoub, and Ren, VarifocalNet: An IoU-               [34] Montiel-Marín, Llamazares, and Antunes, Point Cloud
+     Aware Dense Object Detector, CVPR, 2021.                               Painting for 3D Object Detection with Camera and Auto-
+                                                                            motive 3+1D RADAR Fusion, Sensors, 2024.
+[17] Jiang, Zhang, and Shen, IoU-Net: Learning to Predict IoU
+     for Better Object Detection, CVPR, 2018.                          [35] Deng, Chan, and Zhong, Robust 3D Object Detection from
+                                                                            LiDAR-Radar Point Clouds via Cross-Modal Feature Aug-
+[18] Cai and Vasconcelos, Cascade R-CNN: Delving into High                  mentation, ICRA, 2024.
+     Quality Object Detection, CVPR, 2018.
+                                                                       [36] Zhang, Zeng, and others, Leveraging Self-Supervised In-
+[19] Bodla, Singh, Chellappa, and Davis, Soft-NMS – Improving               stance Contrastive Learning for 4D Radar Object Detec-
+     Object Detection With One Line of Code, ICCV, 2017.                    tion, 2024.
+[20] Sun, Zhang, and Jiang, Sparse R-CNN: End-to-End Object            [37] Fent, Palffy, and Caesar, DPFT: Dual Perspective Fusion
+     Detection With Learnable Proposals, CVPR, 2021.                        Transformer for Camera-Radar-Based Object Detection,
+[21] Graham, Engelcke, and van der Maaten, 3D Semantic Seg-                 IEEE Transactions on Intelligent Vehicles, 2025.
+     mentation with Submanifold Sparse Convolutional Net-              [38] Bai, et al., BEVFusion: A Simple and Robust LiDAR-
+     works, CVPR, 2018.                                                     Camera Fusion Framework, 2022.
+[22] Graham, Engelcke, and van der Maaten, Submanifold                 [39] Zhuang, et al., TransFusion: Robust LiDAR-Camera Fu-
+     Sparse Convolutional Networks, ICCV, 2017/2018.                        sion for 3D Object Detection With Transformers, CVPR,
+[23] Wang, Jiang, and Gao, RODNet: Radar Object Detection                   2022.
+     Using Cross-Modal Supervision, WACV, 2021.                        [40] Minderer, Djolonga, Romijnders, Hubis, Zhai, Houlsby,
+[24] Patel, Rambach, Visentin, et al., Deep Learning-based                  Tran, and Lucic, Revisiting the Calibration of Modern
+     Object Classification on Automotive Radar Spectra, IEEE                Neural Networks, NeurIPS, 2021.
+     Radar Conference, 2019.                                           [41] Guo, Pleiss, Sun, and Weinberger, On Calibration of Mod-
+[25] Lee, Kim, and Park, Deep-Learning Based Multi-Object                   ern Neural Networks, ICML, 2017.
+     Detection and Tracking using Range-Angle Map in Auto-             [42] Zhang, Wang, Chen, Fang, Yang, Song, and others, Dual
+     motive Radar Systems, VTC-Spring, 2022.                                Radar: A Multi-modal Dataset with Dual 4D Radar for
+[26] Paek, Kong, and Wijaya, K-Radar: 4D Radar Object De-                   Autonomous Driving, arXiv preprint arXiv:2310.07602,
+     tection for Autonomous Driving in Various Weather Condi-               2023.
+     tions, 2022.
+
+
+
+
+                                                                  13
+

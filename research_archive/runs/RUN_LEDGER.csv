@@ -1,0 +1,7 @@
+timestamp_utc,workstream,gpu,method_or_task,dataset,seed,status,evidence
+2026-07-28T23:01:00Z,part3,0,screen_range_compensated_support,astyx,2028,closed,results/rcspt_*_astyx_seed2028.pkl
+2026-07-28T23:01:00Z,part3,1,screen_range_compensated_support,truckscenes,2028,closed,results/rcspt_*_truckscenes_seed2028.pkl
+2026-07-28T23:12:00Z,part3,0,screen_range_compensated_support,v2xradarv,2028,closed,results/rcspt_*_v2xradarv_seed2028.pkl
+2026-07-28T23:12:00Z,part3,1,screen_range_compensated_support,kradar,2028,closed,results/rcspt_*_kradar_seed2028.pkl
+2026-07-28T23:07:00Z,part3,2,fair_sbd20_kradar_seed2028,kradar,2028,closed,logs/fair_ablation/fair_sbd20_kradar_seed2028_gpu2.log
+2026-07-28T22:20:32Z,part2,-,external_baseline_comparison,all,2026-2028,closed,results/external_baseline_comparison.csv

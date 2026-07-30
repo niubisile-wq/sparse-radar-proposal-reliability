@@ -1,0 +1,9 @@
+_BASE_CONFIG_: /root/autodl-tmp/radar_champion/repos/OpenPCDet_current/tools/cfgs/astyx_models/pointpillars_qflr575_kradar_car.yaml
+MODEL:
+    VFE:
+        NAME: PillarVFEPhysicalResidual
+        PHYSICAL_RCS_INDEX: 3
+        PHYSICAL_VELOCITY_INDEX: 4
+        PHYSICAL_HIDDEN_CHANNELS: 16
+        PHYSICAL_RESIDUAL_ALPHA: 0.25
+        PHYSICAL_STD_FLOOR: 0.001

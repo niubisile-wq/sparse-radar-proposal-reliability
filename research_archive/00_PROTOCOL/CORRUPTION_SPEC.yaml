@@ -1,0 +1,24 @@
+freeze_id: "20260728_230418"
+scope:
+  dataset_family: "single-class sparse radar 3D detection"
+  datasets: [astyx, truckscenes, v2xradarv, kradar]
+  seed: 2028
+  metric: "AP_R40@3D IoU 0.50"
+transforms:
+  point_dropout:
+    type: deterministic_inference_only
+    levels: [0.10, 0.20, 0.30]
+  range_compensated_support:
+    type: score_reweighting
+    range_power: [0.0, 1.0, 2.0]
+    support_scale: [1.0, 2.0, 4.0, 8.0]
+    alpha: [0.05, 0.10, 0.20, 0.30]
+  strict_voting:
+    type: post_processing_sweep
+    vote_iou: [0.23, 0.24, 0.25]
+    strength: [0.38, 0.40, 0.42, 0.44, 0.45]
+    residual_count: 50
+principles:
+  - "The corruption benchmark is a benchmark, not a new training regime."
+  - "All corruption parameters must be frozen before reading outputs."
+  - "Mixed range/sparsity outcomes remain supporting evidence unless a full matrix is closed."

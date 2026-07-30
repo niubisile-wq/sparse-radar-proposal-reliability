@@ -1,0 +1,30 @@
+# Python and experiment caches
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.venv/
+venv/
+
+# LaTeX build products
+*.aux
+*.fdb_latexmk
+*.fls
+*.log
+*.out
+*.synctex.gz
+
+# Local data, checkpoints, and large generated assets
+*.ckpt
+*.pth
+*.pt
+*.pkl
+*.tiff
+*.npz
+*.npy
+*.tar
+*.tar.gz
+*.zip
+
+# Private infrastructure scripts
+monitor_gpu_relay.ps1

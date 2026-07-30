@@ -1,0 +1,148 @@
+{
+  "datasets": [
+    {
+      "dataset": "stable_astyx",
+      "pred_path": "/root/autodl-tmp/稀疏雷达提案可靠性四模块论文实验全量冻结映像_20260727_000030/repos/OpenPCDet_current/output/root/autodl-tmp/radar_champion/repos/OpenPCDet_current/tools/cfgs/astyx_models/pointpillars_stable_four_modules_astyx_car/fair_stable_four_modules_astyx_seed5623/eval/eval_with_train/epoch_160/val/result.pkl",
+      "info_path": "/root/autodl-tmp/稀疏雷达提案可靠性四模块论文实验全量冻结映像_20260727_000030/repos/OpenPCDet_current/data/astyx/astyx_infos_val.pkl",
+      "pred_count": 100,
+      "frame_count": 100,
+      "prediction_count": 900,
+      "iou_thr": 0.5,
+      "brier": 0.10183081775903702,
+      "ece": 0.11016080331885153,
+      "score_iou_corr": 0.7398391122634842,
+      "top10_iou": 0.6942917108535767,
+      "top10_hit_rate": 0.800000011920929,
+      "mean_score": 0.25991976261138916,
+      "mean_iou": 0.18742594122886658,
+      "mean_hit": 0.19777777791023254,
+      "has_predictions": true,
+      "bins": [
+        {
+          "left": 0.10000000149011612,
+          "right": 0.20000000298023224,
+          "count": 501,
+          "confidence": 0.13734526932239532,
+          "accuracy": 0.02594810351729393,
+          "gap": 0.1113971658051014
+        },
+        {
+          "left": 0.20000000298023224,
+          "right": 0.30000001192092896,
+          "count": 135,
+          "confidence": 0.2451234608888626,
+          "accuracy": 0.14814814925193787,
+          "gap": 0.09697531163692474
+        },
+        {
+          "left": 0.30000001192092896,
+          "right": 0.4000000059604645,
+          "count": 88,
+          "confidence": 0.34812065958976746,
+          "accuracy": 0.25,
+          "gap": 0.09812065958976746
+        },
+        {
+          "left": 0.4000000059604645,
+          "right": 0.5,
+          "count": 52,
+          "confidence": 0.4544313848018646,
+          "accuracy": 0.5769230723381042,
+          "gap": 0.12249168753623962
+        },
+        {
+          "left": 0.5,
+          "right": 0.6000000238418579,
+          "count": 58,
+          "confidence": 0.5405502915382385,
+          "accuracy": 0.6379310488700867,
+          "gap": 0.09738075733184814
+        },
+        {
+          "left": 0.6000000238418579,
+          "right": 0.699999988079071,
+          "count": 35,
+          "confidence": 0.6498510837554932,
+          "accuracy": 0.8571428656578064,
+          "gap": 0.20729178190231323
+        },
+        {
+          "left": 0.699999988079071,
+          "right": 0.800000011920929,
+          "count": 25,
+          "confidence": 0.7498775720596313,
+          "accuracy": 0.800000011920929,
+          "gap": 0.05012243986129761
+        },
+        {
+          "left": 0.800000011920929,
+          "right": 0.8999999761581421,
+          "count": 6,
+          "confidence": 0.8195778727531433,
+          "accuracy": 1.0,
+          "gap": 0.1804221272468567
+        }
+      ]
+    },
+    {
+      "dataset": "stable_truck",
+      "pred_path": "/root/autodl-tmp/稀疏雷达提案可靠性四模块论文实验全量冻结映像_20260727_000030/repos/OpenPCDet_current/output/root/autodl-tmp/radar_champion/repos/OpenPCDet_current/tools/cfgs/astyx_models/pointpillars_stable_four_modules_truckscenes_car/fair_stable_four_modules_truckscenes_seed5623/eval/eval_with_train/epoch_160/val/result.pkl",
+      "info_path": "/root/autodl-tmp/稀疏雷达提案可靠性四模块论文实验全量冻结映像_20260727_000030/data/man-truckscenes-mini/unified/truckscenes_infos_val.pkl",
+      "pred_count": 80,
+      "frame_count": 80,
+      "prediction_count": 0,
+      "iou_thr": 0.5,
+      "brier": NaN,
+      "ece": NaN,
+      "score_iou_corr": NaN,
+      "top10_iou": NaN,
+      "top10_hit_rate": NaN,
+      "mean_score": NaN,
+      "mean_iou": NaN,
+      "mean_hit": NaN,
+      "has_predictions": false,
+      "bins": []
+    },
+    {
+      "dataset": "stable_v2x",
+      "pred_path": "/root/autodl-tmp/稀疏雷达提案可靠性四模块论文实验全量冻结映像_20260727_000030/repos/OpenPCDet_current/output/root/autodl-tmp/radar_champion/repos/OpenPCDet_current/tools/cfgs/astyx_models/pointpillars_stable_four_modules_v2xradarv_car/fair_stable_four_modules_v2xradarv_seed5623/eval/eval_with_train/epoch_160/val/result.pkl",
+      "info_path": "/root/autodl-tmp/稀疏雷达提案可靠性四模块论文实验全量冻结映像_20260727_000030/data/v2x-radar-v-400/unified/v2xradarv_infos_val.pkl",
+      "pred_count": 80,
+      "frame_count": 80,
+      "prediction_count": 0,
+      "iou_thr": 0.5,
+      "brier": NaN,
+      "ece": NaN,
+      "score_iou_corr": NaN,
+      "top10_iou": NaN,
+      "top10_hit_rate": NaN,
+      "mean_score": NaN,
+      "mean_iou": NaN,
+      "mean_hit": NaN,
+      "has_predictions": false,
+      "bins": []
+    },
+    {
+      "dataset": "stable_kradar",
+      "pred_path": "/root/autodl-tmp/稀疏雷达提案可靠性四模块论文实验全量冻结映像_20260727_000030/repos/OpenPCDet_current/output/root/autodl-tmp/radar_champion/repos/OpenPCDet_current/tools/cfgs/astyx_models/pointpillars_stable_four_modules_kradar_car/fair_stable_four_modules_kradar_seed5623/eval/eval_with_train/epoch_160/val/result.pkl",
+      "info_path": "/root/autodl-tmp/稀疏雷达提案可靠性四模块论文实验全量冻结映像_20260727_000030/data/kradar-400/unified/kradar_infos_val.pkl",
+      "pred_count": 80,
+      "frame_count": 80,
+      "prediction_count": 0,
+      "iou_thr": 0.5,
+      "brier": NaN,
+      "ece": NaN,
+      "score_iou_corr": NaN,
+      "top10_iou": NaN,
+      "top10_hit_rate": NaN,
+      "mean_score": NaN,
+      "mean_iou": NaN,
+      "mean_hit": NaN,
+      "has_predictions": false,
+      "bins": []
+    }
+  ],
+  "mean_ece": NaN,
+  "mean_brier": NaN,
+  "mean_score_iou_corr": NaN
+}

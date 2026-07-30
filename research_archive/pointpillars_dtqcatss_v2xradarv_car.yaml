@@ -1,0 +1,17 @@
+_BASE_CONFIG_: /root/autodl-tmp/radar_champion/repos/OpenPCDet_current/tools/cfgs/astyx_models/pointpillars_taac_v2xradarv_car.yaml
+DATA_CONFIG:
+    _BASE_CONFIG_: /root/autodl-tmp/radar_champion/repos/RadarPillar/tools/cfgs/dataset_configs/champion_v2xradarv_car.yaml
+MODEL:
+    DENSE_HEAD:
+        NAME: AnchorHeadDualTargetConsensus
+        QUALITY_FOCAL_BETA: 2.0
+        QUALITY_IOU_POWER: 1.0
+        QUALITY_TARGET_FLOOR: 0.0
+        QUALITY_OBJECTNESS_RESIDUAL: 0.55
+        OBJECTNESS_LOSS_WEIGHT: 0.5
+        QUALITY_FUSION_ALPHA: 0.5
+        TARGET_ASSIGNER_CONFIG:
+            NAME: ATSS
+            TOPK: 9
+            MATCH_HEIGHT: False
+            BOX_CODER: ResidualCoder
