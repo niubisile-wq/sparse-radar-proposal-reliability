@@ -1,0 +1,13 @@
+dataset,seed,iou_thr,rdar_ap,ap,delta_vs_rdar,log
+astyx,2028,0.3,34.354,32.4529,-1.9010999999999996,wbf_i0p3_astyx_seed2028_gpu0.log
+astyx,2028,0.5,34.354,34.4898,0.13580000000000325,wbf_i0p5_astyx_seed2028_gpu0.log
+astyx,2028,0.7,34.354,34.4186,0.06459999999999866,wbf_i0p7_astyx_seed2028_gpu0.log
+truckscenes,2028,0.3,15.3041,15.1777,-0.1264000000000003,wbf_i0p3_truckscenes_seed2028_gpu0.log
+truckscenes,2028,0.5,15.3041,15.1802,-0.12390000000000079,wbf_i0p5_truckscenes_seed2028_gpu0.log
+truckscenes,2028,0.7,15.3041,15.1562,-0.14789999999999992,wbf_i0p7_truckscenes_seed2028_gpu0.log
+v2xradarv,2028,0.3,41.3385,38.5564,-2.782100000000007,wbf_i0p3_v2xradarv_seed2028_gpu1.log
+v2xradarv,2028,0.5,41.3385,40.673,-0.6655000000000015,wbf_i0p5_v2xradarv_seed2028_gpu1.log
+v2xradarv,2028,0.7,41.3385,40.6596,-0.6789000000000058,wbf_i0p7_v2xradarv_seed2028_gpu1.log
+kradar,2028,0.3,52.0271,50.7802,-1.2468999999999966,wbf_i0p3_kradar_seed2028_gpu1.log
+kradar,2028,0.5,52.0271,51.9306,-0.09649999999999892,wbf_i0p5_kradar_seed2028_gpu1.log
+kradar,2028,0.7,52.0271,51.8923,-0.13479999999999848,wbf_i0p7_kradar_seed2028_gpu1.log

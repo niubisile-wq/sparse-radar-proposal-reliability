@@ -27,8 +27,16 @@ The manuscript’s current data-availability statement is therefore:
 
 > Astyx, MAN TruckScenes, V2X-Radar-V, and K-Radar are available from their
 > original providers subject to their respective access and licence terms.
-> Derived experimental configurations and result summaries supporting the
-> findings are available from the corresponding author upon reasonable request.
+> Derived experimental configurations, result summaries, manuscript sources,
+> and reproducibility materials supporting the findings are publicly available
+> in this repository and archived at Zenodo. Raw datasets and model checkpoints
+> are not redistributed.
+
+The latest review-strengthening audit is in
+`research_archive/results/review_upgrade_20260730/`. It includes fixed
+Soft-NMS, weighted-box-fusion, and standard box-voting controls, a
+training-only leave-one-dataset-out threshold audit, dataset-clustered
+bootstrap statistics, and GPU voting-runtime scaling measurements.
 
 ## Citation
 

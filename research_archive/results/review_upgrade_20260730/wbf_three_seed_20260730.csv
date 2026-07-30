@@ -1,0 +1,13 @@
+method,dataset,seed,iou_thr,baseline_ap,candidate_ap,delta_ap,log
+wbf_iou0.5,astyx,2026,0.5,32.7281,32.5354,-0.192699999999995,wbf_i0p5_astyx_seed2026_gpu0.log
+wbf_iou0.5,astyx,2027,0.5,31.422,31.4434,0.021399999999999864,wbf_i0p5_astyx_seed2027_gpu0.log
+wbf_iou0.5,astyx,2028,0.5,34.354,34.4898,0.13580000000000325,wbf_i0p5_astyx_seed2028_gpu0.log
+wbf_iou0.5,truckscenes,2026,0.5,15.4127,15.3464,-0.06630000000000003,wbf_i0p5_truckscenes_seed2026_gpu0.log
+wbf_iou0.5,truckscenes,2027,0.5,18.3845,18.1833,-0.20120000000000005,wbf_i0p5_truckscenes_seed2027_gpu0.log
+wbf_iou0.5,truckscenes,2028,0.5,15.3041,15.1802,-0.12390000000000079,wbf_i0p5_truckscenes_seed2028_gpu0.log
+wbf_iou0.5,v2xradarv,2026,0.5,40.7802,40.7008,-0.07939999999999969,wbf_i0p5_v2xradarv_seed2026_gpu1.log
+wbf_iou0.5,v2xradarv,2027,0.5,42.9899,42.9927,0.00280000000000058,wbf_i0p5_v2xradarv_seed2027_gpu1.log
+wbf_iou0.5,v2xradarv,2028,0.5,41.3385,40.673,-0.6655000000000015,wbf_i0p5_v2xradarv_seed2028_gpu1.log
+wbf_iou0.5,kradar,2026,0.5,51.345,51.1404,-0.20459999999999923,wbf_i0p5_kradar_seed2026_gpu1.log
+wbf_iou0.5,kradar,2027,0.5,48.1767,47.9089,-0.26779999999999404,wbf_i0p5_kradar_seed2027_gpu1.log
+wbf_iou0.5,kradar,2028,0.5,52.0271,51.9306,-0.09649999999999892,wbf_i0p5_kradar_seed2028_gpu1.log

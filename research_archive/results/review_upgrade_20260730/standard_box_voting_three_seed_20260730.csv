@@ -1,0 +1,13 @@
+method,dataset,seed,vote_iou,strength,baseline_ap,candidate_ap,delta_ap,log
+standard_box_voting,astyx,2026,0.3,0.5,32.7281,33.1603,0.4322000000000017,stdvb_i030_s050_astyx_seed2026_gpu0.log
+standard_box_voting,astyx,2027,0.3,0.5,31.422,31.7529,0.33089999999999975,stdvb_i030_s050_astyx_seed2027_gpu0.log
+standard_box_voting,astyx,2028,0.3,0.5,34.354,35.0077,0.6537000000000006,stdvb_i030_s050_astyx_seed2028_gpu0.log
+standard_box_voting,truckscenes,2026,0.3,0.75,15.4127,15.2455,-0.16719999999999935,stdvb_i030_s075_truckscenes_seed2026_gpu0.log
+standard_box_voting,truckscenes,2027,0.3,0.75,18.3845,17.941,-0.4435000000000002,stdvb_i030_s075_truckscenes_seed2027_gpu0.log
+standard_box_voting,truckscenes,2028,0.3,0.75,15.3041,15.6656,0.3614999999999995,stdvb_i030_s075_truckscenes_seed2028_gpu0.log
+standard_box_voting,v2xradarv,2026,0.4,0.25,40.7802,41.4459,0.6657000000000011,stdvb_i040_s025_v2xradarv_seed2026_gpu1.log
+standard_box_voting,v2xradarv,2027,0.4,0.25,42.9899,43.1468,0.15690000000000026,stdvb_i040_s025_v2xradarv_seed2027_gpu1.log
+standard_box_voting,v2xradarv,2028,0.4,0.25,41.3385,42.1186,0.7800999999999974,stdvb_i040_s025_v2xradarv_seed2028_gpu1.log
+standard_box_voting,kradar,2026,0.45,0.4,51.345,51.3582,0.013199999999997658,stdvb_i045_s040_kradar_seed2026_gpu1.log
+standard_box_voting,kradar,2027,0.45,0.4,48.1767,48.1389,-0.03779999999999717,stdvb_i045_s040_kradar_seed2027_gpu1.log
+standard_box_voting,kradar,2028,0.45,0.4,52.0271,52.0808,0.0537000000000063,stdvb_i045_s040_kradar_seed2028_gpu1.log

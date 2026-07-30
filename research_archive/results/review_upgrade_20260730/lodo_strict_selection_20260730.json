@@ -1,0 +1,186 @@
+{
+  "selections": [
+    {
+      "holdout": "astyx",
+      "tag": "m3rob_q15p25_viou0p22_s0p40",
+      "vote_iou": 0.22,
+      "strength": 0.4,
+      "train_mean_delta": 0.8739666666666673,
+      "train_min_delta": 0.025200000000001666,
+      "rule": "all 9 training seeds positive, then max training mean delta"
+    },
+    {
+      "holdout": "truckscenes",
+      "tag": "m3rob_q15p25_viou0p22_s0p40",
+      "vote_iou": 0.22,
+      "strength": 0.4,
+      "train_mean_delta": 0.8660444444444452,
+      "train_min_delta": 0.1623000000000019,
+      "rule": "all 9 training seeds positive, then max training mean delta"
+    },
+    {
+      "holdout": "v2xradarv",
+      "tag": "m3rob_q15p25_viou0p24_s0p35",
+      "vote_iou": 0.24,
+      "strength": 0.35,
+      "train_mean_delta": 1.1825777777777793,
+      "train_min_delta": 0.5248000000000062,
+      "rule": "all 9 training seeds positive, then max training mean delta"
+    },
+    {
+      "holdout": "kradar",
+      "tag": "m3rob_q15p25_viou0p22_s0p40",
+      "vote_iou": 0.22,
+      "strength": 0.4,
+      "train_mean_delta": 0.4803222222222225,
+      "train_min_delta": 0.025200000000001666,
+      "rule": "all 9 training seeds positive, then max training mean delta"
+    }
+  ],
+  "rows": [
+    {
+      "holdout_dataset": "astyx",
+      "seed": 2026,
+      "vote_iou": 0.22,
+      "strength": 0.4,
+      "selected_tag": "m3rob_q15p25_viou0p22_s0p40",
+      "baseline_ap": 32.7281,
+      "candidate_ap": 33.2512,
+      "delta_ap": 0.5230999999999995,
+      "train_mean_delta": 0.8739666666666673,
+      "train_min_delta": 0.025200000000001666
+    },
+    {
+      "holdout_dataset": "astyx",
+      "seed": 2027,
+      "vote_iou": 0.22,
+      "strength": 0.4,
+      "selected_tag": "m3rob_q15p25_viou0p22_s0p40",
+      "baseline_ap": 31.422,
+      "candidate_ap": 32.2137,
+      "delta_ap": 0.7917000000000023,
+      "train_mean_delta": 0.8739666666666673,
+      "train_min_delta": 0.025200000000001666
+    },
+    {
+      "holdout_dataset": "astyx",
+      "seed": 2028,
+      "vote_iou": 0.22,
+      "strength": 0.4,
+      "selected_tag": "m3rob_q15p25_viou0p22_s0p40",
+      "baseline_ap": 34.354,
+      "candidate_ap": 34.5471,
+      "delta_ap": 0.19310000000000116,
+      "train_mean_delta": 0.8739666666666673,
+      "train_min_delta": 0.025200000000001666
+    },
+    {
+      "holdout_dataset": "truckscenes",
+      "seed": 2026,
+      "vote_iou": 0.22,
+      "strength": 0.4,
+      "selected_tag": "m3rob_q15p25_viou0p22_s0p40",
+      "baseline_ap": 15.4127,
+      "candidate_ap": 15.4379,
+      "delta_ap": 0.025200000000001666,
+      "train_mean_delta": 0.8660444444444452,
+      "train_min_delta": 0.1623000000000019
+    },
+    {
+      "holdout_dataset": "truckscenes",
+      "seed": 2027,
+      "vote_iou": 0.22,
+      "strength": 0.4,
+      "selected_tag": "m3rob_q15p25_viou0p22_s0p40",
+      "baseline_ap": 18.3845,
+      "candidate_ap": 18.9652,
+      "delta_ap": 0.5807000000000002,
+      "train_mean_delta": 0.8660444444444452,
+      "train_min_delta": 0.1623000000000019
+    },
+    {
+      "holdout_dataset": "truckscenes",
+      "seed": 2028,
+      "vote_iou": 0.22,
+      "strength": 0.4,
+      "selected_tag": "m3rob_q15p25_viou0p22_s0p40",
+      "baseline_ap": 15.3041,
+      "candidate_ap": 16.2774,
+      "delta_ap": 0.9733,
+      "train_mean_delta": 0.8660444444444452,
+      "train_min_delta": 0.1623000000000019
+    },
+    {
+      "holdout_dataset": "v2xradarv",
+      "seed": 2026,
+      "vote_iou": 0.24,
+      "strength": 0.35,
+      "selected_tag": "m3rob_q15p25_viou0p24_s0p35",
+      "baseline_ap": 40.7802,
+      "candidate_ap": 40.9479,
+      "delta_ap": 0.1676999999999964,
+      "train_mean_delta": 1.1825777777777793,
+      "train_min_delta": 0.5248000000000062
+    },
+    {
+      "holdout_dataset": "v2xradarv",
+      "seed": 2027,
+      "vote_iou": 0.24,
+      "strength": 0.35,
+      "selected_tag": "m3rob_q15p25_viou0p24_s0p35",
+      "baseline_ap": 42.9899,
+      "candidate_ap": 42.6954,
+      "delta_ap": -0.2944999999999993,
+      "train_mean_delta": 1.1825777777777793,
+      "train_min_delta": 0.5248000000000062
+    },
+    {
+      "holdout_dataset": "v2xradarv",
+      "seed": 2028,
+      "vote_iou": 0.24,
+      "strength": 0.35,
+      "selected_tag": "m3rob_q15p25_viou0p24_s0p35",
+      "baseline_ap": 41.3385,
+      "candidate_ap": 42.1828,
+      "delta_ap": 0.8442999999999969,
+      "train_mean_delta": 1.1825777777777793,
+      "train_min_delta": 0.5248000000000062
+    },
+    {
+      "holdout_dataset": "kradar",
+      "seed": 2026,
+      "vote_iou": 0.22,
+      "strength": 0.4,
+      "selected_tag": "m3rob_q15p25_viou0p22_s0p40",
+      "baseline_ap": 51.345,
+      "candidate_ap": 53.9389,
+      "delta_ap": 2.593899999999998,
+      "train_mean_delta": 0.4803222222222225,
+      "train_min_delta": 0.025200000000001666
+    },
+    {
+      "holdout_dataset": "kradar",
+      "seed": 2027,
+      "vote_iou": 0.22,
+      "strength": 0.4,
+      "selected_tag": "m3rob_q15p25_viou0p22_s0p40",
+      "baseline_ap": 48.1767,
+      "candidate_ap": 49.2475,
+      "delta_ap": 1.0708000000000055,
+      "train_mean_delta": 0.4803222222222225,
+      "train_min_delta": 0.025200000000001666
+    },
+    {
+      "holdout_dataset": "kradar",
+      "seed": 2028,
+      "vote_iou": 0.22,
+      "strength": 0.4,
+      "selected_tag": "m3rob_q15p25_viou0p22_s0p40",
+      "baseline_ap": 52.0271,
+      "candidate_ap": 53.4131,
+      "delta_ap": 1.3860000000000028,
+      "train_mean_delta": 0.4803222222222225,
+      "train_min_delta": 0.025200000000001666
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+method,dataset,seed,sigma,baseline_ap,candidate_ap,delta_ap,log
+soft_nms_sigma0.5,astyx,2026,0.5,32.7281,32.5265,-0.2015999999999991,softnms_s0p5_astyx_seed2026_gpu0.log
+soft_nms_sigma0.5,astyx,2027,0.5,31.422,31.1772,-0.24480000000000146,softnms_s0p5_astyx_seed2027_gpu0.log
+soft_nms_sigma0.5,astyx,2028,0.5,34.354,34.251,-0.10300000000000153,softnms_s0p5_astyx_seed2028_gpu0.log
+soft_nms_sigma0.5,truckscenes,2026,0.5,15.4127,15.2374,-0.1753,softnms_s0p5_truckscenes_seed2026_gpu0.log
+soft_nms_sigma0.5,truckscenes,2027,0.5,18.3845,18.5205,0.13599999999999923,softnms_s0p5_truckscenes_seed2027_gpu0.log
+soft_nms_sigma0.5,truckscenes,2028,0.5,15.3041,15.616,0.3118999999999996,softnms_s0p5_truckscenes_seed2028_gpu0.log
+soft_nms_sigma0.5,v2xradarv,2026,0.5,40.7802,40.6316,-0.14860000000000184,softnms_s0p5_v2xradarv_seed2026_gpu1.log
+soft_nms_sigma0.5,v2xradarv,2027,0.5,42.9899,42.7208,-0.26910000000000167,softnms_s0p5_v2xradarv_seed2027_gpu1.log
+soft_nms_sigma0.5,v2xradarv,2028,0.5,41.3385,41.1269,-0.21160000000000423,softnms_s0p5_v2xradarv_seed2028_gpu1.log
+soft_nms_sigma0.5,kradar,2026,0.5,51.345,51.4234,0.07840000000000202,softnms_s0p5_kradar_seed2026_gpu1.log
+soft_nms_sigma0.5,kradar,2027,0.5,48.1767,48.2697,0.09300000000000352,softnms_s0p5_kradar_seed2027_gpu1.log
+soft_nms_sigma0.5,kradar,2028,0.5,52.0271,51.9144,-0.11269999999999669,softnms_s0p5_kradar_seed2028_gpu1.log
