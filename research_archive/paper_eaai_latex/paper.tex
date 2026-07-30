@@ -61,8 +61,8 @@ Foundation of Hubei Province under Grants 2022CFB908 and 2019CFB530, and in
 part by the China Scholarship Council under Grant 201808420418.}
 
 \begin{abstract}
-Radar-only three-dimensional (3D) object detection is attractive for all-weather
-automotive perception, but sparse, sensor-dependent measurements make proposal
+Radar-only three-dimensional (3D) object detection is attractive for perception
+under adverse sensing conditions, but sparse, sensor-dependent measurements make proposal
 selection unreliable. Filtering can remove useful boxes, classification
 confidence can disagree with localization quality, and average gains can hide
 dataset- or seed-specific regressions. We formulate proposal reliability in
@@ -73,17 +73,19 @@ proposals, aligns confidence with localization quality, and restricts voting
 to supported primary boxes. We evaluate the method on Astyx, MAN TruckScenes,
 V2X-Radar-V, and K-Radar using three training seeds and AP$_{R40}$ at a
 three-dimensional intersection-over-union threshold of 0.50. The strict
-reliability route improves the RDAR baseline in all 12 matched dataset-seed
-comparisons, yielding a mean gain of 0.9726 AP. Treating dataset as the
-resampling unit gives an exact cluster-bootstrap 95\% interval of
-[0.5464, 1.4834] AP. A training-only leave-one-dataset-out audit gives a
-positive held-out dataset mean on all four datasets and 11/12 positive
-held-out seed differences. A separate high-performance route increases macro
+protocol-bounded route improves the RDAR baseline in all 12 matched dataset-seed
+comparisons under the selected finite protocol, yielding a mean gain of
+0.9726 AP. Treating the four datasets as resampling clusters gives a
+descriptive four-dataset cluster-resampling interval of [0.5464, 1.4834] AP.
+A leave-one-dataset-out threshold-selection audit gives a positive held-out
+dataset mean on all four datasets and 11/12 positive held-out seed
+differences. A separate high-performance route increases macro
 AP from 35.3552 to 39.1214, although one TruckScenes seed decreases. Progressive
 ablation, calibration diagnostics, point-dropout tests, threshold sensitivity,
 runtime profiling, and qualitative analysis link these outcomes to specific
-proposal mechanisms. These results show that strict reliability and maximum
-average accuracy are distinct objectives: constrained voting provides
+proposal mechanisms. These results show that protocol-bounded paired
+no-regression behavior and maximum average accuracy are distinct objectives:
+constrained voting provides
 consistent paired gains at measurable post-processing cost, whereas confidence
 quality alignment delivers larger average gains and improved calibration
 without guaranteeing uniform improvement across diagnostics.
@@ -202,13 +204,13 @@ classification targets combine objectness with online 3D IoU, and strict
 voting updates only supported primary centers and headings. These constraints
 allow weak evidence to assist a detection without letting it dominate ranking
 or expand box geometry.
-\item \textbf{Paired reliability evaluation.} We operationalize strict
-reliability as positive improvement over RDAR in every matched dataset--seed
+\item \textbf{Paired reliability evaluation.} We operationalize the strict
+route's protocol-bounded paired no-regression behavior as positive improvement over RDAR in every matched dataset--seed
 cell and evaluate it across four radar datasets and three seeds. The selected
 strict route improves all 12 pairs, with a mean gain of 0.9726 AP and a minimum
-gain of 0.1718 AP. A training-only leave-one-dataset-out audit retains positive
-held-out dataset means on all four datasets and 11/12 positive held-out seed
-differences.
+gain of 0.1718 AP. A leave-one-dataset-out threshold-selection audit retains
+positive held-out dataset means on all four datasets and 11/12 positive
+held-out seed differences.
 \item \textbf{Separated operating objectives.} We distinguish the strict route
 from a high-performance route that raises macro AP by 3.7662 but contains one
 seed-level regression. Calibration, corruption, threshold, efficiency, and
@@ -613,6 +615,23 @@ whether a proposal is spatially supported. The strict route is selected by the
 paired no-regression gate described below, not by the performance of a single
 seed.
 
+For reproducibility, the expert uses the same PointPillars-style radar input,
+class definition, box coder, and seven-parameter output head as the primary
+stream. Its configuration has a 64-channel PillarVFE, a 32-channel
+DensityAwarePillarGate in the pillar backbone, and a 64-channel BEV scatter.
+The BEV backbone uses three blocks with depths $[3,5,5]$, strides
+$[2,2,2]$, filters $[64,128,256]$, and three 128-channel upsampling paths.
+After concatenation, the expert applies a stable squeeze--excitation gate with
+reduction 8 and an initial bounded residual scale of 0.1, followed by the
+multi-scale BEV context module with hidden width 32, dilations $[1,2,4]$, and
+initial residual scale 0.1. The gate is channel-wise: for BEV feature $x$ it
+computes $x\mapsto x(1+r(2\sigma(g(\operatorname{GAP}(x)))-1))$, where $r$ is
+learned and initialized to 0.1. The expert is trained independently with the
+same frozen split, augmentation policy, optimizer, 160-epoch schedule, and
+checkpoint epoch as the paired primary configuration; no additional labels or
+sensor inputs are used. The exact dataset-specific YAML files, checkpoint
+paths, and commit are included in the reproducibility archive.
+
 \subsubsection{Expert-consistency quality gate}
 
 Let $\mathcal{E}=\{(\mathbf{e}_j,u_j)\}$ be the expert predictions. The final
@@ -966,8 +985,9 @@ $[0,60]\times[-25,25]\times[-3,2]$ &
 \parbox{\textwidth}{\scriptsize
 All rows use the paper's frozen car-class mapping and are evaluated with
 AP$_{R40}$ at a 3D-IoU match threshold of 0.50. Each method is trained
-independently for the three listed seeds, and strict reliability is calculated
-from matched method--RDAR differences within the same dataset and seed. The
+independently for the three listed seeds, and protocol-bounded paired
+no-regression behavior is calculated from matched method--RDAR differences
+within the same dataset and seed. The
 spatial range is the common model input range recorded in the frozen
 configurations, not a claim about the physical maximum range of each sensor.}
 \end{table*}
@@ -983,7 +1003,7 @@ The formal experiment crosses four datasets with seeds 2026, 2027, and 2028.
 For each dataset, models are trained independently under the same optimization
 schedule and evaluated with the same class mapping and metric implementation.
 We report the mean and sample standard deviation over the three seeds. More
-importantly, strict reliability is assessed from paired differences between
+importantly, the strict route is assessed from paired differences between
 methods trained with the same seed. This pairing reduces some between-seed
 variation and exposes regressions that could be hidden by an average.
 
@@ -1034,8 +1054,10 @@ convert a small improvement into a practically large one. Because the strict
 threshold was selected within the same four-dataset protocol used for the
 formal comparison, the result is interpreted as bounded consistency evidence
 rather than an independent held-out guarantee. As a complementary clustered
-summary, we also resample the four dataset-level means; the exact cluster
-bootstrap 95\% interval for the strict mean gain is [0.5464, 1.4834] AP.
+summary, we also resample the four dataset-level means. This four-dataset
+cluster-resampling interval for the strict mean gain is [0.5464, 1.4834] AP;
+it is a descriptive uncertainty summary for the finite dataset set, not a
+population-level confidence interval.
 
 \section{Results}
 \label{sec:results}
@@ -1120,6 +1142,11 @@ The quality-aligned route reaches 38.7283 macro AP. It provides large mean
 improvements on Astyx, V2X-Radar-V, and K-Radar, but the qflr55 configuration
 has a negative TruckScenes difference at seed 2027. It therefore supports the
 effectiveness of quality-aware ranking but not Eq.~\eqref{eq:strict-gate}.
+The qflr55 control is our task-specific quality-focal implementation; it is not
+presented as a drop-in reproduction of standard GFL or VarifocalNet. Direct
+architecture-level GFL/Varifocal comparisons would require matching their
+target assignment and head implementations and remain outside the frozen
+checkpoint set used here.
 
 The high-performance route reaches 39.1214 macro AP, 3.7662 above RDAR. Its
 largest mean gain is 7.8045 AP on K-Radar, followed by 4.1454 on Astyx and
@@ -1227,7 +1254,8 @@ would still leave every remaining difference positive.
 
 The dataset-clustered view is deliberately more conservative. The four
 dataset-level means are +0.8551, +0.9207, +0.4216, and +1.6928 AP, and the
-exact cluster bootstrap gives [0.5464, 1.4834] AP for their mean. This interval
+four-dataset cluster-resampling interval is [0.5464, 1.4834] AP for their
+mean. This interval
 does not treat the three seeds within one dataset as independent datasets.
 
 We computed a nonparametric bootstrap interval by resampling the 12 paired
@@ -1274,6 +1302,44 @@ Strict quality-aligned route & +0.8551 & +0.9207 & +0.4216 & +1.6928 & 4/4 \\
 \end{tabular}
 \endgroup
 \end{table*}
+
+As a component-attribution check, we also decomposed the stable-expert endpoint
+on seed 2027 before aggregating the formal 12-cell result. Table~\ref{tab:gate-vote-factorial}
+reports the same primary RDAR outputs after (i) the expert gate only and (ii)
+the expert gate followed by the proposed center-and-heading vote. This is a
+partial factorial decomposition because the corresponding ungated vote-only
+control is covered by the generic box-voting control above; it is therefore an
+attribution diagnostic rather than a new primary claim. The gate supplies the
+main positive shift on all four datasets, while the restricted vote changes
+the gated endpoint by a smaller amount and does not resize boxes.
+
+\begin{table}[!t]
+\centering
+\reviewcaption{Seed-2027 component-attribution diagnostic for the stable expert.}
+\label{tab:gate-vote-factorial}
+\begingroup
+\color{black}
+\scriptsize
+\setlength{\tabcolsep}{3pt}
+\renewcommand{\arraystretch}{1.12}
+\begin{tabularx}{\columnwidth}{@{}Xrrrr@{}}
+\toprule
+Dataset & RDAR & Gate only & Gate + vote & Vote increment \\
+\midrule
+Astyx & 31.4220 & 32.6512 & 32.4638 & -0.1874 \\
+TruckScenes & 18.3845 & 19.4072 & 19.1881 & -0.2191 \\
+V2X-Radar-V & 42.9899 & 44.0130 & 43.2741 & -0.7389 \\
+K-Radar & 48.1767 & 49.3558 & 49.0496 & -0.3062 \\
+\bottomrule
+\end{tabularx}
+\endgroup
+\vspace{2pt}
+\parbox{\columnwidth}{\scriptsize
+All values are AP$_{R40}$ at 3D IoU 0.50. This diagnostic uses the stable
+BEV-gated expert checkpoint at epoch 160 and seed 2027; the formal strict
+route uses its separately frozen quality-aligned primary lane and the full
+three-seed protocol.}
+\end{table}
 
 V2X-Radar-V defines the narrowest margin. Its mean improvement is only 0.4216,
 and two seeds are below 0.22 AP. The strict conclusion is consequently
@@ -1514,20 +1580,23 @@ threshold insensitivity.
 \subsection{Held-out threshold audit}
 
 Because the main strict threshold was selected on the four-dataset protocol,
-we performed a training-only leave-one-dataset-out audit as a sensitivity
-check. For each held-out dataset, we searched the already frozen grid using
-only the other nine dataset--seed cells, retained configurations whose nine
-training differences were all positive, and selected the one with the highest
-training mean. The selected configuration was then applied to every seed of
-the held-out dataset without further tuning. The audit is based on frozen
-outputs rather than a newly isolated development split, so it is not presented
-as an independent confirmation; its purpose is to test whether the positive
-direction survives when each dataset is excluded from threshold selection.
+we performed two leave-one-dataset-out threshold-transfer screens as
+sensitivity checks. The first is the conservative ``training-positive'' screen
+in Table~\ref{tab:lodo-audit}: using only the other nine dataset--seed cells, we
+retained grid settings whose nine differences were all positive and selected
+the one with the highest training mean. The second is an unconstrained
+mean-transfer screen (Table~\ref{tab:lodo-seed-audit}), which selected the
+highest mean over the other nine cells without imposing the all-positive
+constraint. Each selected setting was then applied to every seed of the held-
+out dataset without further tuning. Both screens use frozen outputs rather
+than a newly isolated development split, so neither is presented as an
+independent confirmation; they test whether the positive direction survives
+when each dataset is excluded from threshold selection.
 
 \begin{table}[!t]
 \centering
-\reviewcaption{Training-only leave-one-dataset-out audit for strict-route
-threshold selection.}
+\reviewcaption{Leave-one-dataset-out threshold-selection audit for strict-route
+threshold transfer.}
 \label{tab:lodo-audit}
 \begingroup
 \color{black}
@@ -1551,6 +1620,49 @@ The held-out means are computed against the matched RDAR values. All four
 held-out dataset means are positive and 11 of 12 held-out seed differences are
 positive.}
 \end{table}
+
+\begin{table*}[!t]
+\centering
+\reviewcaption{Complete seed-level results for the unconstrained
+leave-one-dataset-out threshold-transfer screen. The threshold maximizes the
+mean over the other nine dataset--seed cells and is then frozen for all three
+seeds of the held-out dataset.}
+\label{tab:lodo-seed-audit}
+\begingroup
+\color{black}
+\scriptsize
+\setlength{\tabcolsep}{6pt}
+\renewcommand{\arraystretch}{1.10}
+\begin{tabular}{lcrrrc}
+\toprule
+Held-out dataset & Seed & Selected $(\tau_v,\lambda)$ & RDAR AP & Audit AP & $\Delta$AP \\
+\midrule
+Astyx & 2026 & (0.24,0.35) & 32.7281 & 33.9447 & +1.2166 \\
+Astyx & 2027 & (0.24,0.35) & 31.4220 & 32.3681 & +0.9461 \\
+Astyx & 2028 & (0.24,0.35) & 34.3540 & 35.1526 & +0.7986 \\
+\addlinespace
+TruckScenes & 2026 & (0.25,0.35) & 15.4127 & 16.4645 & +1.0518 \\
+TruckScenes & 2027 & (0.25,0.35) & 18.3845 & 19.1663 & +0.7818 \\
+TruckScenes & 2028 & (0.25,0.35) & 15.3041 & 16.2177 & +0.9136 \\
+\addlinespace
+V2X-Radar-V & 2026 & (0.24,0.35) & 40.7802 & 40.9479 & +0.1677 \\
+V2X-Radar-V & 2027 & (0.24,0.35) & 42.9899 & 42.6954 & \textbf{-0.2945} \\
+V2X-Radar-V & 2028 & (0.24,0.35) & 41.3385 & 42.1828 & +0.8443 \\
+\addlinespace
+K-Radar & 2026 & (0.24,0.35) & 51.3450 & 53.9517 & +2.6067 \\
+K-Radar & 2027 & (0.24,0.35) & 48.1767 & 48.7015 & +0.5248 \\
+K-Radar & 2028 & (0.24,0.35) & 52.0271 & 53.4132 & +1.3861 \\
+\bottomrule
+\end{tabular}
+\endgroup
+\vspace{2pt}
+\parbox{\textwidth}{\scriptsize
+The V2X-Radar-V seed-2027 negative cell is the only seed-level regression in
+this unconstrained transfer screen. It is obtained under the transferred
+$(0.24,0.35)$ setting; the formal main strict setting $(0.24,0.40)$ gives a
+positive $+0.1718$ AP on the same matched RDAR cell. This distinction separates
+threshold transfer from the main protocol result.}
+\end{table*}
 
 \subsection{Qualitative cases}
 
@@ -1664,8 +1776,8 @@ difference cannot be attributed to parameter count; it reflects the
 configuration and proposal processing performed during the measured forward
 path.
 
-Strict voting adds about 22--23 ms per frame in the current implementation.
-The timer processes 500 primary boxes per frame using GPU 3D-IoU construction
+The isolated voting kernel costs about 22--23 ms per frame in the current
+implementation. The timer processes 500 primary boxes per frame using GPU 3D-IoU construction
 followed by a Python loop over proposals. Across the profiled subsets, it votes
 47,790 of 50,000 primary boxes on Astyx, 37,277 of 40,000 on TruckScenes,
 38,009 of 40,000 on V2X-Radar-V, and 38,457 of 40,000 on K-Radar. The large
@@ -1777,8 +1889,8 @@ quality-aligned branch or apply a separate calibration procedure. A pipeline
 that needs consistent AP under the tested conditions may prefer strict voting,
 provided its confidence values are not interpreted probabilistically without
 additional validation. The paper therefore avoids merging ``quality
-alignment'', ``calibration'', and ``strict reliability'' into one marketing
-claim.
+alignment'', ``calibration'', and protocol-bounded paired no-regression
+behavior into one universal claim.
 
 Range and sparsity bins reveal another boundary. Sparse radar difficulty is
 often described as if fewer points or longer range should define a single
@@ -1812,8 +1924,9 @@ The accuracy-oriented quality head does not increase model parameters, but its
 fixed-profile latency is approximately two to four milliseconds higher than
 RDAR depending on the dataset. It remains below nine milliseconds per frame
 on the profiled RTX 3090. The strict route has a more substantial cost. Its
-expert and voting stages require a second source of proposals and an additional
-22--23 ms per frame for the current vote.
+expert and voting stages require a second source of proposals. The isolated
+voting kernel costs 22--23 ms per frame for the current 500-proposal
+implementation; this is not the end-to-end strict-route latency.
 
 The overhead is an implementation property as well as a method property. The
 current script computes a dense primary-box IoU matrix and iterates over
@@ -1884,8 +1997,10 @@ primary stream or enlarge the predicted geometry.
 The four-dataset, three-seed evaluation supports two different conclusions.
 Across Astyx, MAN TruckScenes, V2X-Radar-V, and K-Radar, the strict route
 improves RDAR in all 12 paired comparisons. Its mean improvement is 0.9726 AP,
-its minimum improvement is 0.1718 AP, and the bootstrap interval for the mean
-paired gain is [0.6468, 1.3536]. The high-performance route raises macro AP
+its minimum improvement is 0.1718 AP, and the four-dataset cluster-resampling
+interval for the dataset-level mean is [0.5464, 1.4834] AP. This is a
+descriptive uncertainty summary for the four evaluated datasets, not a
+population-level confidence interval. The high-performance route raises macro AP
 from 35.3552 to 39.1214, a gain of 3.7662 AP, and improves ECE in the
 seed-2028 diagnostic audit. It nevertheless contains one negative
 TruckScenes seed result and is therefore not assigned the strict
@@ -1906,7 +2021,7 @@ These findings lead to an explicit engineering choice. The high-performance
 route is appropriate when mean detection accuracy and confidence quality are
 primary and the observed seed-level regression can be validated or tolerated.
 The strict route is appropriate when positive paired behavior over the tested
-conditions is more important and an additional 22--23 ms of voting latency is
+conditions is more important and the measured isolated voting cost is
 acceptable. Neither route establishes universal robustness beyond the finite
 datasets, seeds, class, and corruption protocol studied here. Future work
 should freeze thresholds on an independent development set, evaluate more
