@@ -7,6 +7,7 @@
 \usepackage{hyperref}
 \usepackage{enumitem}
 \usepackage{microtype}
+\usepackage{float}
 \usepackage{xcolor}
 \usepackage{etoolbox}
 \usepackage{booktabs}
@@ -84,10 +85,12 @@ A leave-one-dataset-out threshold-selection audit gives a positive held-out
 dataset mean on all four datasets and 11/12 positive held-out seed
 differences, but includes one $-0.2945$ AP seed-level regression under the
 unconstrained threshold-transfer screen. A complete vote-only audit is not
-uniformly positive (6/12 cells; mean $-0.0274$ AP), whereas the expert-gate
-diagnostic is positive in its four evaluated cells; this supports an
-expert-consistency-led interpretation, with geometry voting treated as conditional
-evidence rather than a universally beneficial operation. A separate high-performance route increases macro
+uniformly positive (6/12 cells; mean $-0.0274$ AP). In a separate fixed-expert
+12-cell factorial using the formal strict parameters, gate-only improves 11/12
+cells (mean $+1.5825$ AP), while gate-plus-vote improves 10/12 (mean
+$+1.5513$ AP); this supports an expert-consistency-led interpretation, with
+geometry voting treated as conditional evidence rather than a universally
+beneficial operation. A separate high-performance route increases macro
 AP from 35.3552 to 39.1214, although one TruckScenes seed decreases. Progressive
 ablation, calibration diagnostics, point-dropout tests, threshold sensitivity,
 runtime profiling, and qualitative analysis link these outcomes to specific
@@ -676,6 +679,11 @@ same frozen split, augmentation policy, optimizer, 160-epoch schedule, and
 checkpoint epoch as the paired primary configuration; no additional labels or
 sensor inputs are used. The exact dataset-specific YAML files, checkpoint
 paths, and commit are included in the reproducibility archive.
+For the fixed-expert factorial audit, the expert checkpoint is held fixed
+within each conversion: seed 2027 is used for Astyx, TruckScenes, and
+V2X-Radar-V, and seed 2028 is used for K-Radar, while the primary prediction
+stream varies over seeds 2026, 2027, and 2028. This prevents the expert from
+implicitly tracking the seed of each primary cell.
 
 \subsubsection{Expert-consistency quality gate}
 
@@ -1394,10 +1402,11 @@ As a component-attribution check, we also ran a four-cell gate--vote
 decomposition on a fixed primary lane. Table~\ref{tab:gate-vote-factorial}
 reports the same primary RDAR outputs with neither operation, the expert gate
 only, the restricted vote only, and the expert gate followed by voting. The
-gate supplies the positive shift in every evaluated condition, whereas vote
-only is not uniformly positive. Combining the two remains positive in all four
-conditions, but this is a four-cell diagnostic rather than a complete
-factorial claim.
+gate supplies the positive shift in every condition of this historical
+four-cell diagnostic, whereas vote only is not uniformly positive. We now
+additionally evaluate the fixed-expert gate and gate-plus-vote routes on all
+12 primary dataset--seed cells below; this separates the four-cell diagnostic
+from the formal factorial audit.
 
 \begin{table}[!t]
 \centering
@@ -1463,8 +1472,54 @@ Mean / positive cells & \multicolumn{3}{c}{-0.0274 AP / 6 of 12} \\
 \parbox{\columnwidth}{\scriptsize
 Entries are AP differences from the corresponding RDAR output. The same
 $\tau_v=0.24$, strength $0.40$, BEV-center mode, and 50-entry residual
-exclusion are used in every cell. This table is a complete vote-only audit,
-not a claim that gate and vote have been evaluated factorially in all 12 cells.}
+exclusion are used in every cell. This table is a complete vote-only audit;
+the fixed-expert gate--vote factorial is reported in the following table.}
+\end{table}
+
+To test component attribution under the actual fixed-expert protocol, we
+repeated the gate and gate-plus-vote operations for all three primary seeds.
+The fixed expert uses seed 2027 for Astyx, TruckScenes, and V2X-Radar-V, and
+seed 2028 for K-Radar, matching the expert assignment used by the strict
+endpoint. Table~\ref{tab:fixed-expert-factorial} reports AP differences from
+the corresponding RDAR output. Gate-only improves 11/12 cells and has a
+positive mean on every frozen conversion. Adding the local vote improves
+10/12 cells; both regressions occur on Astyx. Thus the complete audit supports
+expert-consistency reweighting as the more reproducible component, while also
+providing direct evidence that geometry voting needs a conditional operating
+point.
+
+\begin{table}[H]
+\centering
+\reviewcaption{Complete fixed-expert 12-cell factorial audit. Entries are AP
+differences from RDAR for primary seeds 2026/2027/2028. The fixed expert is
+seed 2027 for Astyx, TruckScenes, and V2X-Radar-V, and seed 2028 for K-Radar.}
+\label{tab:fixed-expert-factorial}
+\begingroup
+\color{black}
+\scriptsize
+\setlength{\tabcolsep}{3pt}
+\renewcommand{\arraystretch}{1.15}
+\begin{tabularx}{\columnwidth}{@{}lX Xrr@{}}
+\toprule
+Conversion & Gate only (2026/2027/2028) & Gate + vote (2026/2027/2028)
+& Gate positive & Gate+vote positive \\
+\midrule
+Astyx & $+0.0535/+0.5686/-0.4282$ & $-0.2650/+1.6178/-1.7107$ & 2/3 & 1/3 \\
+TruckScenes & $+3.4379/+2.8000/+3.0339$ & $+1.9138/+2.0084/+4.0684$ & 3/3 & 3/3 \\
+V2X-Radar-V & $+1.0020/+1.6363/+1.2755$ & $+1.2324/+1.6202/+1.7304$ & 3/3 & 3/3 \\
+K-Radar & $+1.7508/+1.6357/+2.2242$ & $+2.2178/+2.0732/+2.1091$ & 3/3 & 3/3 \\
+\midrule
+Overall & mean $+1.5825$ & mean $+1.5513$ & \textbf{11/12} & \textbf{10/12} \\
+\bottomrule
+\end{tabularx}
+\endgroup
+\vspace{2pt}
+\parbox{\columnwidth}{\scriptsize
+Formal parameters are expert match IoU 0.30, score-mixing alpha 0.30, IoU
+exponent 0.25, unmatched scale 0.50, residual exclusion 50, vote IoU 0.24,
+vote strength 0.40, lower-score-neighbor restriction, and xy/heading mode.
+This factorial audit is complementary to the selected strict endpoint and does
+not replace its threshold-selected 12/12 result.}
 \end{table}
 
 V2X-Radar-V defines the narrowest margin. Its mean improvement is only 0.4216,
@@ -2110,11 +2165,11 @@ proposal mechanisms are architecture independent.
 
 The progressive construction analysis is based on seed 2028. It shows a coherent
 path but does not establish independent, monotonic, three-seed contribution
-for every module. The complete vote-only audit now separates the cross-seed
-behavior of voting from the four-cell expert-gate diagnostic, but a full
-expert-gate-by-vote factorial across all 12 cells remains unavailable in the
-frozen checkpoint set. In particular, the small M2 increment warrants careful
-evaluation before any standalone recovery claim.
+for every module. The new fixed-expert factorial audit now separates the
+cross-seed behavior of gate-only and gate-plus-vote operations: gate-only is
+positive in 11/12 cells, while gate-plus-vote is positive in 10/12. This does
+not make either operation universally beneficial; in particular, the small M2
+increment warrants careful evaluation before any standalone recovery claim.
 
 The strict route was selected from a threshold grid evaluated on the same
 four-dataset protocol used to report it. Neighboring all-positive settings
@@ -2152,8 +2207,10 @@ or stabilize a detection, but it cannot silently acquire all privileges of the
 primary stream or enlarge the predicted geometry. M2 is a conservative
 interface rather than a dominant accuracy module, and the complete vote-only
 audit shows that geometric voting alone is not uniformly beneficial. The
-evidence therefore supports a gate-led interpretation in the four-cell
-diagnostic, not a claim for voting as a universally improving operation.
+evidence therefore supports a gate-led interpretation: the fixed-expert 12-cell
+audit gives gate-only 11/12 positive cells, whereas gate-plus-vote gives 10/12,
+with both gate-plus-vote regressions on Astyx. This is evidence for conditional
+geometry refinement, not a claim for voting as a universally improving operation.
 
 The four-conversion, three-seed evaluation supports two different conclusions.
 Within the Astyx, MAN TruckScenes, V2X-Radar-V, and K-Radar frozen conversions,
