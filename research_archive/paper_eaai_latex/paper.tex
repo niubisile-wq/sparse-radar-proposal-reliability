@@ -1303,42 +1303,41 @@ Strict quality-aligned route & +0.8551 & +0.9207 & +0.4216 & +1.6928 & 4/4 \\
 \endgroup
 \end{table*}
 
-As a component-attribution check, we also decomposed the stable-expert endpoint
-on seed 2027 before aggregating the formal 12-cell result. Table~\ref{tab:gate-vote-factorial}
-reports the same primary RDAR outputs after (i) the expert gate only and (ii)
-the expert gate followed by the proposed center-and-heading vote. This is a
-partial factorial decomposition because the corresponding ungated vote-only
-control is covered by the generic box-voting control above; it is therefore an
-attribution diagnostic rather than a new primary claim. The gate supplies the
-main positive shift on all four datasets, while the restricted vote changes
-the gated endpoint by a smaller amount and does not resize boxes.
+As a component-attribution check, we also ran a four-cell gate--vote
+decomposition on a fixed primary lane. Table~\ref{tab:gate-vote-factorial}
+reports the same primary RDAR outputs with neither operation, the expert gate
+only, the restricted vote only, and the expert gate followed by voting. The
+gate supplies the positive shift in every evaluated condition, whereas vote
+only is not uniformly positive. Combining the two remains positive in all four
+conditions, but the result is not reducible to generic voting alone.
 
 \begin{table}[!t]
 \centering
-\reviewcaption{Seed-2027 component-attribution diagnostic for the stable expert.}
+\reviewcaption{Four-cell gate--vote component-attribution diagnostic.}
 \label{tab:gate-vote-factorial}
 \begingroup
 \color{black}
 \scriptsize
 \setlength{\tabcolsep}{3pt}
 \renewcommand{\arraystretch}{1.12}
-\begin{tabularx}{\columnwidth}{@{}Xrrrr@{}}
+\begin{tabularx}{\columnwidth}{@{}Xrrrrr@{}}
 \toprule
-Dataset & RDAR & Gate only & Gate + vote & Vote increment \\
+Dataset & Neither & Gate only & Vote only & Gate + vote \\
 \midrule
-Astyx & 31.4220 & 32.6512 & 32.4638 & -0.1874 \\
-TruckScenes & 18.3845 & 19.4072 & 19.1881 & -0.2191 \\
-V2X-Radar-V & 42.9899 & 44.0130 & 43.2741 & -0.7389 \\
-K-Radar & 48.1767 & 49.3558 & 49.0496 & -0.3062 \\
+Astyx & 31.4220 & 31.9674 & 31.7927 & 32.9596 \\
+TruckScenes & 18.3845 & 21.1631 & 18.0119 & 20.6590 \\
+V2X-Radar-V & 42.9899 & 44.6020 & 42.1110 & 45.0582 \\
+K-Radar & 52.0271 & 54.2513 & 51.8515 & 54.1391 \\
 \bottomrule
 \end{tabularx}
 \endgroup
 \vspace{2pt}
 \parbox{\columnwidth}{\scriptsize
-All values are AP$_{R40}$ at 3D IoU 0.50. This diagnostic uses the stable
-BEV-gated expert checkpoint at epoch 160 and seed 2027; the formal strict
-route uses its separately frozen quality-aligned primary lane and the full
-three-seed protocol.}
+All values are AP$_{R40}$ at 3D IoU 0.50 and use the same primary prediction
+lane within each row. The expert checkpoints are epoch 160; Astyx, TruckScenes,
+and V2X-Radar-V use seed 2027, while K-Radar uses the available seed-2028
+expert checkpoint. This is a component diagnostic, not a replacement for the
+formal three-seed strict-route result.}
 \end{table}
 
 V2X-Radar-V defines the narrowest margin. Its mean improvement is only 0.4216,

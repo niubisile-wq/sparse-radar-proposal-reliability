@@ -1,16 +1,17 @@
-# Gate/vote component-attribution diagnostic
+# Gate/vote four-cell component-attribution diagnostic
 
-This diagnostic uses the stable BEV-gated expert checkpoint at epoch 160 and
-seed 2027. It compares the same primary RDAR stream after the expert gate and
-after the gate followed by the restricted `xy`/heading vote.
+This diagnostic uses the same primary prediction lane within each row and
+compares neither operation, the expert gate only, the restricted vote only,
+and gate followed by vote. Expert checkpoints are epoch 160; Astyx,
+TruckScenes, and V2X-Radar-V use seed 2027, while K-Radar uses the available
+seed-2028 expert checkpoint.
 
-| Dataset | RDAR | Gate only | Gate + vote | Vote increment |
+| Dataset | Neither | Gate only | Vote only | Gate + vote |
 |---|---:|---:|---:|---:|
-| Astyx | 31.4220 | 32.6512 | 32.4638 | -0.1874 |
-| TruckScenes | 18.3845 | 19.4072 | 19.1881 | -0.2191 |
-| V2X-Radar-V | 42.9899 | 44.0130 | 43.2741 | -0.7389 |
-| K-Radar | 48.1767 | 49.3558 | 49.0496 | -0.3062 |
+| Astyx | 31.4220 | 31.9674 | 31.7927 | 32.9596 |
+| TruckScenes | 18.3845 | 21.1631 | 18.0119 | 20.6590 |
+| V2X-Radar-V | 42.9899 | 44.6020 | 42.1110 | 45.0582 |
+| K-Radar | 52.0271 | 54.2513 | 51.8515 | 54.1391 |
 
-This is a component-attribution diagnostic, not the formal 12-cell result and
-not a complete four-cell factorial table. Generic ungated box-voting controls
-are reported separately in the manuscript.
+This is a component-attribution diagnostic, not the formal 12-cell result.
+Generic three-seed post-processing controls remain reported separately.
