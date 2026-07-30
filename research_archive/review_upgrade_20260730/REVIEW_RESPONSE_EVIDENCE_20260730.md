@@ -20,11 +20,17 @@ the manuscript must retain the stated protocol boundaries.
 Direct inspection of the eight frozen train/validation info files found zero
 exact overlap in `point_cloud.pc_idx` for every dataset. It also found
 validation IDs adjacent to a training ID for 82/100 Astyx frames, 4/80
-TruckScenes frames, 1/80 V2X-Radar-V frames, and 80/80 K-Radar frames. The
-conversion records contain no scene, sequence, vehicle, or timestamp key, so
-this audit cannot prove scene-disjointness or exclude same-scene correlation.
-The manuscript now reports this explicitly and limits all conclusions to the
-frame-level frozen protocol.
+TruckScenes frames, 1/80 V2X-Radar-V frames, and 80/80 K-Radar frames. Here
+adjacent means the symmetric numeric test
+`abs(val.point_cloud.pc_idx - train.point_cloud.pc_idx) == 1`; it is not proof
+that the IDs encode time. The conversion records contain no scene, sequence,
+vehicle, or timestamp key, so this audit cannot prove scene-disjointness or
+exclude same-scene correlation. The corresponding exclusion rule retains
+18/100, 76/80, 79/80, and 0/80 validation frames, respectively. Because the
+available archive lacks complete per-frame predictions for the main strict
+endpoint, no filtered AP is reported; K-Radar is not estimable under this
+rule. The manuscript now reports this explicitly and limits all conclusions to
+the frame-level frozen protocol.
 
 Artifact: `frozen_split_audit_20260730.md` and
 `scripts/audit_frozen_split_overlap.py`.
