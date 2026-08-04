@@ -32,10 +32,12 @@ source table used by the final diagnostic figure.
 
 ## Version archive
 
-The earlier `v1.0.0` snapshot is archived at Zenodo:
+The current Sensors submission package is archived as `v1.1.0` at Zenodo:
+[10.5281/zenodo.21782473](https://doi.org/10.5281/zenodo.21782473).
+The stable concept DOI for all archived versions is
+[10.5281/zenodo.21696781](https://doi.org/10.5281/zenodo.21696781).
+The earlier `v1.0.0` snapshot remains available at
 [10.5281/zenodo.21696782](https://doi.org/10.5281/zenodo.21696782).
-A new Zenodo version should be created from the current repository state for
-the Sensors submission.
 
 ## Contact
 
