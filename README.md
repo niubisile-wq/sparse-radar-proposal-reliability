@@ -1,48 +1,41 @@
-# Reliability-Oriented Proposal Refinement for Sparse Radar-Based 3D Object Detection
+# Expert-Consistency-Guided Proposal Refinement for 3D Object Detection from Sparse Radar Point Clouds
 
-This repository contains the reproducibility materials for the manuscript
-“Reliability-Oriented Proposal Refinement for Sparse Radar-Based Three-Dimensional
-Object Detection” by Zixuan Liu and Wei Xiong.
+This repository contains the manuscript sources and reproducibility materials
+for the Sensors submission by Zixuan Liu and Wei Xiong.
 
-## Contents
+## Current manuscript
 
-- `research_archive/paper_eaai_latex/`: manuscript LaTeX source, references,
-  figures, compiled PDFs, and submission-readiness materials.
-- `research_archive/`: experiment configurations, evaluation scripts, figure
-  generation scripts, result summaries, protocol notes, and frozen-analysis
-  documentation.
+- `research_archive/paper_sensors_latex_20260803/`: current Sensors LaTeX
+  source, compiled PDF, final figures, figure-source tables, and plotting
+  scripts. The files were synchronized with the submission candidate on
+  4 August 2026.
+- `research_archive/paper_eaai_latex/`: retained earlier manuscript snapshot.
+- `research_archive/`: experiment configurations, evaluation scripts, result
+  summaries, protocol notes, and frozen-analysis documentation.
 
-The formal study compares radar-only proposal refinement across Astyx,
-MAN TruckScenes, V2X-Radar-V, and K-Radar with three training seeds. The paper
-reports both a high-performance route and a strict paired-reliability route.
+The study evaluates radar-only proposal refinement on Astyx, MAN TruckScenes,
+V2X-Radar-V, and K-Radar using three training seeds. It reports a
+high-performance route and a strict paired-reliability route.
 
 ## Reproducibility scope
 
-The repository contains source code, configuration files, derived summaries,
-and manuscript materials. Original datasets, downloaded checkpoints, raw
-experiment artifacts, large TIFF assets, and private infrastructure scripts are
-not included. Dataset access remains subject to the original providers’ terms.
+The repository contains source code, configuration files, derived result
+tables, plotting inputs, and manuscript materials. Original datasets,
+downloaded checkpoints, raw experiment artifacts, and private infrastructure
+scripts are not redistributed. Dataset access remains subject to the original
+providers' terms and licences.
 
-The manuscript’s current data-availability statement is therefore:
+The review-strengthening audit is available under
+`research_archive/results/review_upgrade_20260730/`. The current Sensors paper
+directory additionally contains the completed 20-cell voting-sensitivity
+source table used by the final diagnostic figure.
 
-> Astyx, MAN TruckScenes, V2X-Radar-V, and K-Radar are available from their
-> original providers subject to their respective access and licence terms.
-> Derived experimental configurations, result summaries, manuscript sources,
-> and reproducibility materials supporting the findings are publicly available
-> in this repository and archived at Zenodo. Raw datasets and model checkpoints
-> are not redistributed.
+## Version archive
 
-The latest review-strengthening audit is in
-`research_archive/results/review_upgrade_20260730/`. It includes fixed
-Soft-NMS, weighted-box-fusion, and standard box-voting controls, a
-training-only leave-one-dataset-out threshold audit, dataset-clustered
-bootstrap statistics, and GPU voting-runtime scaling measurements.
-
-## Citation
-
-Please cite the accompanying manuscript when using these materials. The
-repository is released as `v1.0.0` and archived at Zenodo:
+The earlier `v1.0.0` snapshot is archived at Zenodo:
 [10.5281/zenodo.21696782](https://doi.org/10.5281/zenodo.21696782).
+A new Zenodo version should be created from the current repository state for
+the Sensors submission.
 
 ## Contact
 
